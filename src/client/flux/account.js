@@ -9,6 +9,7 @@
 import Reflux from 'reflux';
 
 import api from '../cloudtrade-api';
+import config from '../config';
 
 /****************************************************************************************/
 
@@ -20,8 +21,8 @@ class AccountStore extends Reflux.Store {
 	constructor() {
 		super();
 		this.state = {
-			user: null,
-			company: 'tabletec'
+			company: config.company,
+			user: null
 		}
 		this.listenables = AccountActions;
 	}

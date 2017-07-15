@@ -161,7 +161,8 @@ class Login extends Reflux.Component {
 						<div className="row">
 							<Input ref="email" name="email" className="col s12" type="email"
 								label="Email" placeholder="Ingresa tu email" iconName="email" required={true}/>
-							
+						</div>
+						<div className="row">
 							<Input ref="userPass" name="userPass" className="col s12" type="password"
 								label="Ingresa tu contraseña" placeholder="Ingresa tu contraseña" iconName="lock" required={true}/>
 						</div>

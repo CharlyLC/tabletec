@@ -1,1 +1,449 @@
-!function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var r={};t.m=e,t.c=r,t.d=function(e,r,n){t.o(e,r)||Object.defineProperty(e,r,{configurable:!1,enumerable:!0,get:n})},t.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(r,"a",r),r},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=4)}([function(e,t){e.exports=require("babel-runtime/helpers/classCallCheck")},function(e,t){e.exports=require("babel-runtime/helpers/createClass")},function(e,t){e.exports=require("express")},function(e,t){e.exports=require("react")},function(e,t,r){"use strict";var n=r(5);!function(){new n.App}()},function(e,t,r){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}Object.defineProperty(t,"__esModule",{value:!0}),t.App=void 0;var o=r(0),i=n(o),u=r(1),l=n(u),s=r(6),a=n(s),c=r(7),f=n(c),d=r(8),h=n(d),p=r(2),m=n(p),b=r(9),v=r(10),x=n(v),_=r(11),y=function(){function e(){(0,i.default)(this,e),this.config=x.default.readFileSync(f.default.join(__dirname,"config.json")),this.express=(0,m.default)(),this.express.use(m.default.static(f.default.join(__dirname,"assets"))),this.express.use(this.setRender);var t=new _.WebRouter;this.express.use("/",t.router),this.onLoad()}return(0,l.default)(e,[{key:"onLoad",value:function(){this.server=a.default.createServer(this.express),this.server.listen(this.config.port,this.onStart.bind(this))}},{key:"onStart",value:function(){console.log(h.default.blue("INFORMACIÓN: El servidor está listo y escuchando por el puerto:",this.config.port))}},{key:"setRender",value:function(e,t,r){t.render=function(e){return t.send((0,b.renderToString)(e))},r()}}]),e}();t.App=y},function(e,t){e.exports=require("http")},function(e,t){e.exports=require("path")},function(e,t){e.exports=require("colors")},function(e,t){e.exports=require("react-dom/server")},function(e,t){e.exports=require("jsonfile")},function(e,t,r){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}Object.defineProperty(t,"__esModule",{value:!0}),t.WebRouter=void 0;var o=r(0),i=n(o),u=r(2),l=n(u),s=r(12),a=function e(){(0,i.default)(this,e),this.router=l.default.Router(),this.controller={home:new s.HomeController},this.router.get("/",this.controller.home.index.bind(this.controller.default)),this.router.get("/login",this.controller.home.index.bind(this.controller.default)),this.router.get("/adm",this.controller.home.index.bind(this.controller.default)),this.router.get("/adm/inventarios",this.controller.home.index.bind(this.controller.default)),this.router.get("/adm/inventarios/articulos/:action?/:article?",this.controller.home.index.bind(this.controller.default))};t.WebRouter=a},function(e,t,r){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}Object.defineProperty(t,"__esModule",{value:!0}),t.HomeController=void 0;var o=r(0),i=n(o),u=r(1),l=n(u),s=r(3),a=n(s),c=r(13),f=function(){function e(){(0,i.default)(this,e)}return(0,l.default)(e,[{key:"index",value:function(e,t){t.render(a.default.createElement(c.HomeView,null))}}]),e}();t.HomeController=f},function(e,t,r){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}Object.defineProperty(t,"__esModule",{value:!0}),t.HomeView=void 0;var o=r(14),i=n(o),u=r(0),l=n(u),s=r(1),a=n(s),c=r(15),f=n(c),d=r(16),h=n(d),p=r(3),m=n(p),b=function(e){function t(e){return(0,l.default)(this,t),(0,f.default)(this,(t.__proto__||(0,i.default)(t)).call(this,e))}return(0,h.default)(t,e),(0,a.default)(t,[{key:"render",value:function(){return m.default.createElement("html",null,m.default.createElement("head",null,m.default.createElement("meta",{name:"viewport",content:"width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"}),m.default.createElement("link",{href:"http://fonts.googleapis.com/icon?family=Material+Icons",rel:"stylesheet"}),m.default.createElement("link",{rel:"stylesheet",type:"text/css",href:"/css/tabletec.min.css"})),m.default.createElement("body",null,m.default.createElement("div",{id:"app-main"}),m.default.createElement("script",{src:"/js/tabletec.deps.min.js"}),m.default.createElement("script",{src:"/js/tabletec.min.js"})))}}]),t}(m.default.Component);t.HomeView=b},function(e,t){e.exports=require("babel-runtime/core-js/object/get-prototype-of")},function(e,t){e.exports=require("babel-runtime/helpers/possibleConstructorReturn")},function(e,t){e.exports=require("babel-runtime/helpers/inherits")}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+module.exports = require("babel-runtime/helpers/classCallCheck");
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = require("babel-runtime/helpers/createClass");
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+module.exports = require("express");
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = require("react");
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _app = __webpack_require__(5);
+
+/****************************************************************************************/
+
+function main() {
+	return new _app.App();
+}
+/****************************************************************************************
+
+	Copyright (c) 2016-2017, Juan Carlos Labrandero.
+	For conditions of distribution and use, see copyright notice in LICENSE
+
+****************************************************************************************/
+
+main();
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.App = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _http = __webpack_require__(6);
+
+var _http2 = _interopRequireDefault(_http);
+
+var _path = __webpack_require__(7);
+
+var _path2 = _interopRequireDefault(_path);
+
+var _colors = __webpack_require__(8);
+
+var _colors2 = _interopRequireDefault(_colors);
+
+var _express = __webpack_require__(2);
+
+var _express2 = _interopRequireDefault(_express);
+
+var _server = __webpack_require__(9);
+
+var _jsonfile = __webpack_require__(10);
+
+var _jsonfile2 = _interopRequireDefault(_jsonfile);
+
+var _web = __webpack_require__(11);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/****************************************************************************************/
+
+var App = function () {
+	function App() {
+		(0, _classCallCheck3.default)(this, App);
+
+		this.config = _jsonfile2.default.readFileSync(_path2.default.join(__dirname, 'config.json'));
+
+		this.express = (0, _express2.default)();
+
+		this.express.use(_express2.default.static(_path2.default.join(__dirname, 'assets')));
+		this.express.use(this.setRender);
+
+		var webRouter = new _web.WebRouter();
+		this.express.use('/', webRouter.router);
+
+		this.onLoad();
+	}
+
+	(0, _createClass3.default)(App, [{
+		key: 'onLoad',
+		value: function onLoad() {
+			this.server = _http2.default.createServer(this.express);
+			this.server.listen(this.config.port, this.onStart.bind(this));
+		}
+	}, {
+		key: 'onStart',
+		value: function onStart() {
+			console.log(_colors2.default.blue('INFORMACIÓN: El servidor está listo y escuchando por el puerto:', this.config.port));
+		}
+
+		/**
+   * Render Overrider Midleware
+   */
+
+	}, {
+		key: 'setRender',
+		value: function setRender(req, res, next) {
+			res.render = function (Component) {
+				return res.send((0, _server.renderToString)(Component));
+			};
+			next();
+		}
+	}]);
+	return App;
+}();
+/****************************************************************************************
+
+	Copyright (c) 2016-2017, Juan Carlos Labrandero.
+	For conditions of distribution and use, see copyright notice in LICENSE
+
+****************************************************************************************/
+
+exports.App = App;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = require("http");
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports = require("path");
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = require("colors");
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+module.exports = require("react-dom/server");
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+module.exports = require("jsonfile");
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.WebRouter = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _express = __webpack_require__(2);
+
+var _express2 = _interopRequireDefault(_express);
+
+var _homeController = __webpack_require__(12);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/****************************************************************************************/
+
+/****************************************************************************************
+
+	Copyright (c) 2016-2017, Juan Carlos Labrandero.
+	For conditions of distribution and use, see copyright notice in LICENSE
+
+****************************************************************************************/
+
+var WebRouter = function WebRouter() {
+	(0, _classCallCheck3.default)(this, WebRouter);
+
+	this.router = _express2.default.Router();
+
+	this.controller = {
+		home: new _homeController.HomeController()
+	};
+
+	this.router.get('/', this.controller.home.index.bind(this.controller.default));
+	this.router.get('/login', this.controller.home.index.bind(this.controller.default));
+	this.router.get('/adm', this.controller.home.index.bind(this.controller.default));
+	this.router.get('/adm/inventarios', this.controller.home.index.bind(this.controller.default));
+	this.router.get('/adm/inventarios/articulos/:action?/:article?', this.controller.home.index.bind(this.controller.default));
+};
+
+exports.WebRouter = WebRouter;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.HomeController = undefined;
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _react = __webpack_require__(3);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _home = __webpack_require__(13);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/****************************************************************************************/
+
+/****************************************************************************************
+
+	Copyright (c) 2016-2017, Juan Carlos Labrandero.
+	For conditions of distribution and use, see copyright notice in LICENSE
+
+****************************************************************************************/
+
+var HomeController = function () {
+	function HomeController() {
+		(0, _classCallCheck3.default)(this, HomeController);
+	}
+
+	(0, _createClass3.default)(HomeController, [{
+		key: 'index',
+		value: function index(req, res) {
+			res.render(_react2.default.createElement(_home.HomeView, null));
+		}
+	}]);
+	return HomeController;
+}();
+
+exports.HomeController = HomeController;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.HomeView = undefined;
+
+var _getPrototypeOf = __webpack_require__(14);
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(15);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(16);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _react = __webpack_require__(3);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/****************************************************************************************/
+
+var HomeView = function (_React$Component) {
+	(0, _inherits3.default)(HomeView, _React$Component);
+
+	function HomeView(props) {
+		(0, _classCallCheck3.default)(this, HomeView);
+		return (0, _possibleConstructorReturn3.default)(this, (HomeView.__proto__ || (0, _getPrototypeOf2.default)(HomeView)).call(this, props));
+	}
+
+	(0, _createClass3.default)(HomeView, [{
+		key: "render",
+		value: function render() {
+			return _react2.default.createElement(
+				"html",
+				null,
+				_react2.default.createElement(
+					"head",
+					null,
+					_react2.default.createElement("meta", { name: "viewport", content: "width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1" }),
+					_react2.default.createElement("link", { href: "http://fonts.googleapis.com/icon?family=Material+Icons", rel: "stylesheet" }),
+					_react2.default.createElement("link", { rel: "stylesheet", type: "text/css", href: "/css/tabletec.min.css" })
+				),
+				_react2.default.createElement(
+					"body",
+					null,
+					_react2.default.createElement("div", { id: "app-main" }),
+					_react2.default.createElement("script", { src: "/js/tabletec.deps.min.js" }),
+					_react2.default.createElement("script", { src: "/js/tabletec.min.js" })
+				)
+			);
+		}
+	}]);
+	return HomeView;
+}(_react2.default.Component);
+/****************************************************************************************
+
+	Copyright (c) 2016-2017, Juan Carlos Labrandero.
+	For conditions of distribution and use, see copyright notice in LICENSE
+
+****************************************************************************************/
+
+exports.HomeView = HomeView;
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+module.exports = require("babel-runtime/core-js/object/get-prototype-of");
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports) {
+
+module.exports = require("babel-runtime/helpers/possibleConstructorReturn");
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+module.exports = require("babel-runtime/helpers/inherits");
+
+/***/ })
+/******/ ]);
