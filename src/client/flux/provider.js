@@ -50,6 +50,22 @@ class ProviderStore extends Reflux.Store {
 			this.setState({listStatus: 'error'});
 		}
 	}
+
+	onFindOne(providerCode) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({viewerStatus: 'loading'});
+			api.inventory.providers.findOne({company: this.state.company, provider: providerCode}, auth, (err, res)=>{
+				if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					this.setState({selectedItem: res.provider, viewerStatus: 'ready'});
+				}
+			});
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
 }
 
 export { ProviderActions, ProviderStore }

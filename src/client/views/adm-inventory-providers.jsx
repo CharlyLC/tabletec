@@ -15,6 +15,7 @@ import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
+import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
@@ -26,6 +27,24 @@ import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { ProviderActions, ProviderStore } from '../flux/provider';
 
 import Tools from '../tools';
+
+/****************************************************************************************/
+
+class ItemProperty extends Reflux.Component {
+	constructor(props) {
+        super(props);
+    }
+
+	render() {
+		return(
+		<div className={this.props.className}>
+			<h6 style={{fontWeight: 'bold', fontSize: '1rem'}}>{ this.props.name + ':'}</h6>
+			<div style={{paddingLeft: '1rem'}}>
+				<span>{ this.props.value }</span>
+			</div>
+		</div>)
+	}
+}
 
 /****************************************************************************************/
 
@@ -112,6 +131,89 @@ class ProvidersList extends Reflux.Component {
 	}
 }
 
+class ProviderViewer extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {}
+
+		this.store = ProviderStore;
+
+		this.dropdowOptions = [];
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		if(this.props.providerCode){
+			ProviderActions.findOne(this.props.providerCode);
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if(this.props.providerCode !== nextProps.providerCode){
+			if(nextProps.providerCode){
+				ProviderActions.findOne(nextProps.providerCode);
+			}
+		}
+	}
+
+	render(){
+		var item = this.state.selectedItem;
+		switch(this.state.viewerStatus){
+		case 'ready':
+			return item ? (
+			<SectionCard title="Datos de proveedor" iconName="people" menuID="providersViewer" menuItems={this.dropdowOptions}>
+
+				<h6 style={{fontWeight: 'bold', padding: '1rem'}}>{item.name}</h6>
+
+				<Collapsible defaultActiveIndex={0}>
+					<CollapsibleCard title="Datos del proveedor" iconName="info_outline">
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Nombre" value={item.name} className="col s6"/>
+							<ItemProperty name="NIT" value={item.nit} className="col s6"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Ciudad" value={item.city} className="col s6"/>
+							<ItemProperty name="Teléfono" value={item.phone} className="col s6"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Correo electrónico" value={item.email} className="col s6"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Dirección" value={item.address} className="col s12"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Descripcion" value={item.description} className="col s12"/>
+						</div>
+					</CollapsibleCard>
+				</Collapsible>
+			</SectionCard>) : (
+			<SectionCard title="Datos de proveedor" iconName="people">
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de proveedores."/>
+				</div>
+			</SectionCard>);
+		case 'loading':
+			return (
+			<SectionCard title="cargando datos de proveedor" iconName="people">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+		case 'error':
+			return (
+			<SectionCard title="Datos de proveedor" iconName="people">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos del proveedor"/>
+			</SectionCard>);
+		}
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryProviders extends Reflux.Component {
@@ -155,6 +257,8 @@ class AdmInventoryProviders extends Reflux.Component {
 					<SectionView className="col s12 m6 l5"  >
 						<Switch match={action}>
 							<ProvidersWelcome path="welcome"/>
+							<ProviderViewer path="ver" url={this.url} history={this.props.history}
+								providerCode={this.props.match.params.provider}/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">

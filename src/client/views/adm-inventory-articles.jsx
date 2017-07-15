@@ -218,7 +218,9 @@ class ArticleViewer extends Reflux.Component {
 				</div>
 			</SectionCard>) :
 			(<SectionCard title="Vista de artículo" iconName="library_books">
-				<p>Seleccione una elemento de la lista de artículos</p>
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de artículos."/>
+				</div>
 			</SectionCard>);
 			
 		case 'loading':
