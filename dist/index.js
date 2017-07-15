@@ -285,6 +285,7 @@ var WebRouter = function WebRouter() {
 
 	this.router.get('/', this.controller.home.index.bind(this.controller.default));
 	this.router.get('/login', this.controller.home.index.bind(this.controller.default));
+	this.router.get('/admin', this.controller.home.index.bind(this.controller.default));
 };
 
 exports.WebRouter = WebRouter;

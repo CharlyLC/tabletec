@@ -8,11 +8,35 @@
 
 import React from 'react';
 import Reflux from 'reflux';
+import { Link } from 'react-router-dom';
 
 import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
+
+/****************************************************************************************/
+
+class HomeUserMenu extends React.Component {
+	constructor(props) {
+        super(props);
+	}
+
+	onLogout() {
+		
+	}
+
+	render() {
+		return(
+		<ul id="navbarUserMenu" className="dropdown-content">
+			<li><Link to="/admin">Administración</Link></li>
+			<li className="divider"></li>
+			<li>
+				<a onClick={this.onLogout.bind(this)}>Cerrar sesión</a>
+			</li>
+		</ul>)
+	}
+}
 
 /****************************************************************************************/
 
@@ -38,7 +62,8 @@ class Home extends Reflux.Component {
 		return (
 		<div>
 			<header>
-				<Navbar user={this.state.user} signin={this.state.signed} brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}/>
+				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
+					user={this.state.user} signin={this.state.signed} userMenuComponent={HomeUserMenu}/>
 			</header>
 			<main>
 				<div className="center-align">

@@ -168,7 +168,7 @@ module.exports = class Input extends React.Component {
 						onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)}
 						style={{height: '2.6rem', marginBottom: '0.3rem'}}/>
 				}
-				<label htmlFor={this.props.name} style={{width: '95%'}}>{this.props.label}</label>
+				<label htmlFor={this.props.name}>{this.props.label}</label>
 			</div>);
 
 		case 'password':
@@ -182,7 +182,7 @@ module.exports = class Input extends React.Component {
 						required onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)}
 						style={{height: '2.6rem', marginBottom: '0.3rem'}}/>
 
-				<label htmlFor={this.props.name} style={{width: '95%'}}>{this.props.label}</label>
+				<label htmlFor={this.props.name}>{this.props.label}</label>
 			</div>);
 
 		case 'checkbox':

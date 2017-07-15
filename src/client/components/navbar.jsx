@@ -17,18 +17,41 @@ class Navbar extends React.Component {
 	}
 
 	componentDidMount() {
+		this.updateMaterialComponents();
 	}
 
 	componentDidUpdate() {
+		this.updateMaterialComponents();
+	}
+
+	updateMaterialComponents() {
+		if(this.props.useSideMenu){
+			$(this.refs.sideBtn).sideNav({
+				menuWidth: 250, // Default is 300
+				closeOnClick: true, // Closes side-nav on <a> clicks, useful for Angular/Meteor
+				draggable: true // Choose whether you can drag to open on touch screens
+			});
+		}
+
+		if(this.props.user){
+			$(this.refs.userDropdown).dropdown({
+				constrainWidth: false,
+				alignment: 'right'
+			});
+		}
+	}
+
+	onOpenUserDropdown() {
+		$(this.refs.userDropdown).dropdown('open');
 	}
 
 	render() {
 		let BrandLogo = this.props.brandLogoComponent,
-			BrandIcon = this.props.brandIconComponent;
+			BrandIcon = this.props.brandIconComponent,
+			UserMenu = this.props.userMenuComponent;
 
 		return(
 		<div className="navbar-fixed">
-
 			<nav>
 				<div className={'nav-wrapper container'}>
 					<ul className="left">
@@ -49,7 +72,8 @@ class Navbar extends React.Component {
 					<ul className="right">
 						{
 							this.props.user ?
-							<li>
+							<li ref="userDropdown" className="dropdown-button" data-activates="navbarUserMenu"
+								onClick={this.onOpenUserDropdown.bind(this)}>
 								<a className="hide-on-large-only">
 									<i className="material-icons">person</i>
 								</a>
@@ -66,6 +90,9 @@ class Navbar extends React.Component {
 									</Link>
 								</li> : null)
 							
+						}
+						{
+							this.props.user ? <UserMenu/> : null
 						}
 					</ul>
 				</div>

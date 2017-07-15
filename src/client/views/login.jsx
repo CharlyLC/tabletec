@@ -24,13 +24,15 @@ class StepPanel extends React.Component {
 
 	render() {
 		return(
-		<div className="row">
-			<div className="col s12 m8 l6 offset-m2 offset-l3" style={{padding: '0rem'}}>
-				<div className="card">
-					<div className="card-content" style={{padding: '1.4rem 2.4rem'}}>
-					{
-						this.props.children
-					}
+		<div className="container">
+			<div className="row">
+				<div className="col s12 m8 l6 offset-m2 offset-l3" style={{padding: '0rem'}}>
+					<div className="card">
+						<div className="card-content" style={{padding: '1.4rem 2.4rem'}}>
+						{
+							this.props.children
+						}
+						</div>
 					</div>
 				</div>
 			</div>
