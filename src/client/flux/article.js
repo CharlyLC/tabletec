@@ -43,7 +43,6 @@ class ArticleStore extends Reflux.Store {
 				if(err){
 					this.setState({listStatus: 'error'});
 				}else{
-					console.log(res);
 					this.setState({list: res.articles, listStatus: 'ready'});
 				}
 			});
@@ -65,6 +64,34 @@ class ArticleStore extends Reflux.Store {
 			});
 		}else{
 			this.setState({viewerStatus: 'error'});
+		}
+	}
+
+	onInsertOne(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			data.company = this.state.company;
+			api.inventory.articles.insertOne(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+	
+	findAllBrands(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.articles.findAllBrands({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	findAllCategories(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.articles.findAllCategories({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}
 	}
 }

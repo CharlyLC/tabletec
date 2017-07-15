@@ -1,3 +1,4 @@
 module.exports = {
-	company: 'tektable'
+	company: 'tektable',
+	apiDomainURL: 'http://localhost:2000'
 }

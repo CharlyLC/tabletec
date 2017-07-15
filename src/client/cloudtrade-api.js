@@ -1,7 +1,8 @@
 
 import request from 'superagent';
+import config from './config';
 
-var domainURL = 'http://localhost:2000';
+var domainURL = config.apiDomainURL;
 
 function stdResCallback(err, res, callback) {
 	if(err){
@@ -49,6 +50,25 @@ var articles = {
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	insertOne: function(data, authorization, callback) {
+		request
+			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/insertar')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	findAllBrands: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/listar-marcas')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	findAllCategories: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/listar-categorias')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	}
 }
 
 var inventory = {
