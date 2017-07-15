@@ -12,8 +12,10 @@ import { Link } from 'react-router-dom';
 
 import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
+import Sidenav from '../components/sidenav.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
+import { InventoryActions, InventoryStore } from '../flux/inventory';
 
 /****************************************************************************************/
 
@@ -74,7 +76,7 @@ class Inventory extends Reflux.Component {
 			signed: false
 		}
 
-		this.stores = [AccountStore];
+		this.stores = [AccountStore, InventoryStore];
 	}
 
 	componentWillMount() {
@@ -83,6 +85,7 @@ class Inventory extends Reflux.Component {
 			if(err){
 				this.props.history.push('/login');
 			}else{
+				InventoryActions.loadSideMenuItems();
 				this.setState({signed: true});
 			}
 		});
@@ -92,7 +95,9 @@ class Inventory extends Reflux.Component {
 		return this.state.user ? (
 		<div>
 			<header>
+				<Sidenav user={this.state.user} items={this.state.sideMenuItems}/>
 				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
+					useSideMenu={true}
 					user={this.state.user} signin={this.state.signed} userMenuComponent={InventoryUserMenu}/>
 			</header>
 			<main>

@@ -58,7 +58,7 @@ class Navbar extends React.Component {
 						{
 							this.props.useSideMenu ?
 							<li >
-								<a style={{color: '#64ffda'}}>
+								<a ref="sideBtn" data-activates="nav-mobile">
 									<i className="material-icons">menu</i>
 								</a>
 							</li>
