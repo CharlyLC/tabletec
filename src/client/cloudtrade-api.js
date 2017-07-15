@@ -71,8 +71,18 @@ var articles = {
 	}
 }
 
+var providers = {
+	findAll: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/proveedores/listar')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+}
+
 var inventory = {
 	articles: articles,
+	providers: providers,
 }
 
 module.exports = {

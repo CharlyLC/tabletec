@@ -31,6 +31,7 @@ import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { ArticleActions, ArticleStore } from '../flux/article';
 
+import Tools from '../tools';
 import config from '../config';
 
 /****************************************************************************************/
@@ -62,16 +63,6 @@ class Slider extends React.Component {
 		</div>
 		)
 	}
-}
-
-function makeid(n) {
-	var text = "";
-	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	
-	for (var i = 0; i < n; i++)
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-		
-	return text;
 }
 
 /****************************************************************************************/
@@ -121,7 +112,7 @@ class ArticleList extends Reflux.Component {
 	}
 
 	onDropdowOptionInsert(item) {
-		this.props.history.push(this.props.url + '/insertar/' + makeid(32));
+		this.props.history.push(this.props.url + '/insertar/' + Tools.makeid(32));
 	}
 
 	onDropdowOptionUpdate(item) {
