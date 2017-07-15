@@ -54,6 +54,7 @@ class AdminUserMenu extends React.Component {
 		return(
 		<ul id="navbarUserMenu" className="dropdown-content">
 			<li><Link to="/">Página principal</Link></li>
+			<li><Link to="/adm/inventarios">Inventarios</Link></li>
 			<li className="divider"></li>
 			<li>
 				<a onClick={this.onLogout.bind(this)}>Cerrar sesión</a>
@@ -87,7 +88,7 @@ class Admin extends Reflux.Component {
 	}
 
 	render() {
-		return (
+		return this.state.user ? (
 		<div>
 			<header>
 				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
@@ -99,14 +100,14 @@ class Admin extends Reflux.Component {
 						<h5 className="center-align" style={{ textShadow:' 1px 1px 1px #999'}}><b>Menu Principal</b></h5>
 					</div>
 					<div className="row"> 
-						<ButtonAdmin text="Inventarios" to={'/admin/inventarios'} iconName="work"/>	
+						<ButtonAdmin text="Inventarios" to={'/adm/inventarios'} iconName="work"/>	
 						<ButtonAdmin text="Compras" to="" iconName="language"/>
 						<ButtonAdmin text="Ventas" to="" iconName="shopping_cart"/>
 						<ButtonAdmin text="Administracion" to="" iconName="settings"/>
 					</div>
 				</div>
 			</main>
-		</div>);
+		</div>) : null;
 	}
 }
 

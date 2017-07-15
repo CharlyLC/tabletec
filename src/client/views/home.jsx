@@ -29,7 +29,8 @@ class HomeUserMenu extends React.Component {
 	render() {
 		return(
 		<ul id="navbarUserMenu" className="dropdown-content">
-			<li><Link to="/admin">Administración</Link></li>
+			<li><Link to="/adm">Administración</Link></li>
+			<li><Link to="/adm/inventarios">Inventarios</Link></li>
 			<li className="divider"></li>
 			<li>
 				<a onClick={this.onLogout.bind(this)}>Cerrar sesión</a>

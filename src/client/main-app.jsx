@@ -15,7 +15,8 @@ import style from './styles/client.scss';
 
 import { Home } from './views/home.jsx';
 import { Login } from './views/login.jsx';
-import { Admin } from './views/admin.jsx';
+import { Admin } from './views/adm.jsx';
+import { Inventory } from './views/adm-inventory.jsx';
 
 /****************************************************************************************/
 
@@ -48,7 +49,8 @@ class App {
 			<Main>
 				<Route exact={true} path="/" component={Home}/>
 				<Route exact={true} path="/login" component={Login}/>
-				<Route exact={true} path="/admin" component={Admin}/>
+				<Route exact={true} path="/adm" component={Admin}/>
+				<Route exact={true} path="/adm/inventarios" component={Inventory}/>
 			</Main>
 		</BrowserRouter>,
 		this._mainSection);
