@@ -24,6 +24,7 @@ class WebRouter {
 		this.router.get('/login', this.controller.home.index.bind(this.controller.default));
 		this.router.get('/adm', this.controller.home.index.bind(this.controller.default));
 		this.router.get('/adm/inventarios', this.controller.home.index.bind(this.controller.default));
+		this.router.get('/adm/inventarios/articulos/:action?/:article?', this.controller.home.index.bind(this.controller.default));
 	}
 }
 

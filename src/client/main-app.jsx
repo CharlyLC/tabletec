@@ -16,7 +16,8 @@ import style from './styles/client.scss';
 import { Home } from './views/home.jsx';
 import { Login } from './views/login.jsx';
 import { Admin } from './views/adm.jsx';
-import { Inventory } from './views/adm-inventory.jsx';
+import { AdmInventory } from './views/adm-inventory.jsx';
+import { AdmInventoryArticles } from './views/adm-inventory-articles.jsx';
 
 /****************************************************************************************/
 
@@ -50,7 +51,8 @@ class App {
 				<Route exact={true} path="/" component={Home}/>
 				<Route exact={true} path="/login" component={Login}/>
 				<Route exact={true} path="/adm" component={Admin}/>
-				<Route exact={true} path="/adm/inventarios" component={Inventory}/>
+				<Route exact={true} path="/adm/inventarios" component={AdmInventory}/>
+				<Route path="/adm/inventarios/articulos/:action?/:article?" component={AdmInventoryArticles}/>
 			</Main>
 		</BrowserRouter>,
 		this._mainSection);

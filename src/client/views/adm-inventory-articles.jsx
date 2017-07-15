@@ -14,39 +14,36 @@ import {BrandLogo, BrandIcon} from '../components/brand.jsx';
 import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
 
+import Alert from '../components/alert.jsx';
+import SectionCard from '../components/section-card.jsx';
+import SectionView from '../components/section-view.jsx';
+import { Switch, Case } from '../components/switch.jsx';
+
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
 
 /****************************************************************************************/
 
-class InfoCard extends React.Component {
+class ArticleWelcome extends React.Component {
 	constructor(props) {
-        super(props);
+		super(props);
+
+		this.state = {}
 	}
 
 	render() {
 		return(
-		<div className="col s12 m3 l3">
-			<a className="card horizontal hoverable" style={{borderRadius:'10px 10px 10px 10px'}}>
-				<div className={'card-image white-text valign-wrapper center-align ' + this.props.themeColor}
-					style={{width:'30%', borderRadius:'10px 0px 0px 10px'}}>
-					<i className="medium material-icons   valing center " style={{width:'100%'}}>{this.props.iconName}</i>
-				</div>
-				<div className="card-stacked">
-					<div className="card-content" style={{padding:'0.5rem 0rem 0.5rem 2rem'}}>
-						<span style={{color:'black'}}><b>{this.props.text1}</b></span>
-						<h3 style={{color:'black' , margin: '0rem'}}><b>{this.props.text2}</b></h3>
-						<p style={{color:'black'}}>{this.props.text3}</p>
-					</div>
-				</div>
-			</a>
-		</div>
-		)
+		<SectionCard title="Bienvenido" iconName="library_books">
+			<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+				<Alert type="info" text="Bienvenido a la página de administración de artículos."/>
+			</div>
+		</SectionCard>);
 	}
 }
 
 /****************************************************************************************/
-class AdmInventory extends Reflux.Component {
+
+class AdmInventoryArticles extends Reflux.Component {
 	constructor(props) {
         super(props);
 
@@ -54,8 +51,8 @@ class AdmInventory extends Reflux.Component {
 			signed: false
 		}
 
-		this.stores = [AccountStore, InventoryStore];
-	}
+		this.stores = [AccountStore, InventoryStore/*, ArticleStore*/];
+    }
 
 	componentWillMount() {
 		super.componentWillMount();
@@ -70,6 +67,7 @@ class AdmInventory extends Reflux.Component {
 	}
 
 	render() {
+		let action = this.props.match.params.action ? this.props.match.params.action : 'welcome';
 		return this.state.user ? (
 		<div>
 			<header>
@@ -79,18 +77,18 @@ class AdmInventory extends Reflux.Component {
 					user={this.state.user} signin={this.state.signed} userMenuComponent={InventoryUserMenu}/>
 			</header>
 			<main>
-				<div className="row">
-					<h5 className="center-align" style={{ textShadow:' 1px 1px 1px #999'}}><b>Inventarios</b></h5>
-				</div>
-				<div className="row">
-					<InfoCard iconName="assessment" text1="titulo" text2="500" text3="xx" themeColor={'grey darken-1'}/>
-					<InfoCard iconName="assessment" text1="titulo" text2="200" text3="xx" themeColor={'grey darken-1'}/>
-					<InfoCard iconName="assessment" text1="titulo" text2="50" text3="xx" themeColor={'grey darken-1'}/>
-					<InfoCard iconName="assessment" text1="titulo" text2="1000" text3="xx" themeColor={'grey darken-1'}/>
+				<div className="row no-margin" style={{backgroundColor: '#eeeeee'}}>
+					<SectionView className="col s12 m6 l5"  >
+						<Switch match={action}>
+							<ArticleWelcome path="welcome"/>
+						</Switch>
+					</SectionView>
+					<SectionView className="col s12 m6 l7">
+					</SectionView>
 				</div>
 			</main>
 		</div>) : null;
 	}
 }
 
-export {AdmInventory}
+export { AdmInventoryArticles }
