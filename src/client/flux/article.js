@@ -51,6 +51,22 @@ class ArticleStore extends Reflux.Store {
 			this.setState({listStatus: 'error'});
 		}
 	}
+
+	onFindOne(articleCode) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({viewerStatus: 'loading'});
+			api.inventory.articles.findOne({company: this.state.company, article: articleCode}, auth, (err, res)=>{
+				if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					this.setState({selectedItem: res.article, viewerStatus: 'ready'});
+				}
+			});
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
 }
 
 export { ArticleActions, ArticleStore }

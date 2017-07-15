@@ -16,6 +16,7 @@ import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
 import Progress from'../components/progress.jsx';
+import PropertySingle from '../components/property-single.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
 import { Switch, Case } from '../components/switch.jsx';
@@ -24,6 +25,37 @@ import Table from '../components/table.jsx';
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { ArticleActions, ArticleStore } from '../flux/article';
+
+/****************************************************************************************/
+
+class Slider extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+
+	componentDidMount() {
+		$(this.refs.slider).slider();
+	}
+
+	render() {
+		return (
+		<div ref="slider" className="slider">
+			<ul className="slides">
+				{
+					this.props.images.map((image, i)=>{
+						return(
+						<li key={i}>
+							<div className="center-align">
+								<img src={'data:image/png;base64,' + btoa(image)} className="responsive-img"/>
+							</div>
+						</li>)
+					})
+				}
+			</ul>
+		</div>
+		)
+	}
+}
 
 /****************************************************************************************/
 
@@ -114,6 +146,88 @@ class ArticleList extends Reflux.Component {
 	}
 }
 
+class ArticleViewer extends Reflux.Component {
+	constructor(props) {
+        super(props);
+
+		this.state = {}
+
+		this.store = ArticleStore;
+		this.storeKeys = ['selectedItem', 'viewerStatus'];
+
+		this.dropdowOptions = [];
+    }
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		if(this.props.articleCode){
+			ArticleActions.findOne(this.props.articleCode);
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if(this.props.articleCode !== nextProps.articleCode){
+			if(nextProps.articleCode){
+				ArticleActions.findOne(nextProps.articleCode);
+			}
+		}
+	}
+
+	render() {
+		switch(this.state.viewerStatus){
+		case 'ready':
+			return this.state.selectedItem ? (
+			<SectionCard title="Vista de artículo" iconName="library_books" menuID="articleViewer" menuItems={this.dropdowOptions}>
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<span>{this.state.selectedItem.name}</span>
+
+					<div className="card" style={{paddingTop: '0.5rem'}}>
+						{
+							this.state.selectedItem.images[0] ?
+							<Slider images={this.state.selectedItem.images}/>:
+							<div className="center-align">
+								<img className="responsive-img" style={{maxHeight: '20rem'}} src={'/images/noimage.png'}/>
+							</div>
+						}
+						<div className="card-content" style={{padding: '1rem'}}>
+							<h6 style={{fontWeight: 'bold'}}>{this.state.selectedItem.description}</h6>
+						</div>
+					</div>
+
+					<PropertySingle name="Código" value={this.state.selectedItem.clientCode}/>
+					<PropertySingle name="Nombre" value={this.state.selectedItem.name}/>
+					<PropertySingle name="Marca" value={this.state.selectedItem.brand}/>
+					<PropertySingle name="Categoría" value={this.state.selectedItem.category}/>
+					{
+						this.state.selectedItem.customFields ?
+						this.state.selectedItem.customFields.map(function(field, i){
+							return <PropertySingle key={i} name={field.name} value={field.value}/>
+						}) : null
+					}
+					<PropertySingle name="Fecha de creación" value={this.state.selectedItem.creationDate}/>
+					<PropertySingle name="Fecha de modificación" value={this.state.selectedItem.modifiedDate}/>
+				</div>
+			</SectionCard>) :
+			(<SectionCard title="Vista de artículo" iconName="library_books">
+				<p>Seleccione una elemento de la lista de artículos</p>
+			</SectionCard>);
+			
+		case 'loading':
+			return (
+			<SectionCard title="Vista de artículo" iconName="library_books">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+		case 'error':
+			return (
+			<SectionCard title="Vista de artículo" iconName="library_books">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos del artículo"/>
+			</SectionCard>);
+		}
+	}
+}
 
 /****************************************************************************************/
 
@@ -158,6 +272,8 @@ class AdmInventoryArticles extends Reflux.Component {
 					<SectionView className="col s12 m6 l5"  >
 						<Switch match={action}>
 							<ArticleWelcome path="welcome"/>
+							<ArticleViewer path="ver" url={this.url} history={this.props.history}
+								articleCode={this.props.match.params.article}/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">

@@ -43,6 +43,12 @@ var articles = {
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	findOne: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/ver/' + data.article)
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
 }
 
 var inventory = {
