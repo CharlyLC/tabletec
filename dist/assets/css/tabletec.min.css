@@ -1,4 +1,4 @@
-.materialize-red {
+@import url(https://fonts.googleapis.com/css?family=Aldrich);.materialize-red {
   background-color: #e51c23 !important; }
 
 .materialize-red-text {
@@ -6873,3 +6873,8 @@ button.picker__today:focus, button.picker__clear:focus, button.picker__close:foc
   stroke-width: 4;
   stroke-linecap: round;
   /*shape-rendering: crispEdges;*/ }
+.rs-brand-logo {
+  font-family: 'Aldrich', sans-serif;
+  font-size: 13pt !important;
+  color: lightgray;
+  font-weight: bold; }

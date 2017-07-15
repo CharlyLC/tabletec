@@ -14,6 +14,7 @@ import material from '../vendor/materialize-src/sass/materialize.scss';
 import style from './styles/client.scss';
 
 import { Home } from './views/home.jsx';
+import { Login } from './views/login.jsx';
 
 /****************************************************************************************/
 
@@ -45,6 +46,7 @@ class App {
 		<BrowserRouter>
 			<Main>
 				<Route exact={true} path="/" component={Home}/>
+				<Route exact={true} path="/login" component={Login}/>
 			</Main>
 		</BrowserRouter>,
 		this._mainSection);

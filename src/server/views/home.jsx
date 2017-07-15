@@ -25,6 +25,7 @@ class HomeView extends React.Component {
 			</head>
 			<body>
 				<div id="app-main"></div>
+				<script src="/js/tabletec.deps.min.js"/>
 				<script src="/js/tabletec.min.js"/>
 			</body>
 		</html>)

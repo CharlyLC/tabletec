@@ -1,6 +1,5 @@
 
 var path = require('path');
-var webpack = require('webpack');
 var nodeExternals = require('webpack-node-externals');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
@@ -68,8 +67,7 @@ var clientConfig = {
 		]
 	},
 	plugins: [
-		new ExtractTextPlugin('css/tabletec.min.css'),
-		new webpack.ProvidePlugin({$: "jquery", jQuery: "jquery"})
+		new ExtractTextPlugin('css/tabletec.min.css')
 	]
 };
 

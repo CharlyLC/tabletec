@@ -7,20 +7,42 @@
 ****************************************************************************************/
 
 import React from 'react';
+import Reflux from 'reflux';
+
+import {Navbar} from '../components/navbar.jsx';
+import {BrandLogo, BrandIcon} from '../components/brand.jsx';
+
+import { AccountActions, AccountStore } from '../flux/account';
 
 /****************************************************************************************/
 
-class Home extends React.Component {
+class Home extends Reflux.Component {
 	constructor(props) {
 		super(props);
+
+		this.state = {
+			signed: false
+		}
+
+		this.stores = [AccountStore];
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+		AccountActions.authenticate((err, res)=>{
+			this.setState({signed: true});
+		});
 	}
 
 	render() {
 		return (
 		<div>
+			<header>
+				<Navbar user={this.state.user} signin={this.state.signed} brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}/>
+			</header>
 			<main>
 				<div className="center-align">
-					<img src="/images/tabletecbanner.jpg" alt="" className="responsive-img"/>
+					<img src="/images/tabletec-banner.png" alt="" className="responsive-img"/>
 				</div>
 			</main>
 		</div>);
