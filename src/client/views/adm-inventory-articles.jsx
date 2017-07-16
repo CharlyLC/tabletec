@@ -318,7 +318,7 @@ class ArticleInsert extends Reflux.Component {
 		if(checked){
 			this.refs.articleBarCode.enable();
 		}else{
-			s = makeid(32);
+			s = Tools.makeid(32);
 			this.refs.articleBarCode.disable();
 		}
 		this.refs.articleBarCode.value(s);

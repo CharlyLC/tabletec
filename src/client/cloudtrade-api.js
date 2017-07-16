@@ -71,6 +71,15 @@ var articles = {
 	}
 }
 
+var warehouses = {
+	findAll: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes/listar')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+}
+
 var providers = {
 	findAll: function(data, authorization, callback) {
 		request
@@ -101,6 +110,7 @@ var providers = {
 
 var inventory = {
 	articles: articles,
+	warehouses: warehouses,
 	providers: providers,
 }
 

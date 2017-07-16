@@ -18,6 +18,7 @@ import { Login } from './views/login.jsx';
 import { Admin } from './views/adm.jsx';
 import { AdmInventory } from './views/adm-inventory.jsx';
 import { AdmInventoryArticles } from './views/adm-inventory-articles.jsx';
+import { AdmInventoryWarehouses } from './views/adm-inventory-warehouses.jsx';
 import { AdmInventoryProviders } from './views/adm-inventory-providers.jsx';
 
 /****************************************************************************************/
@@ -55,6 +56,7 @@ class App {
 				<Route exact={true} path="/adm/inventarios" component={AdmInventory}/>
 
 				<Route path="/adm/inventarios/articulos/:action?/:article?" component={AdmInventoryArticles}/>
+				<Route path="/adm/inventarios/almacenes/:action?/:warehouse?" component={AdmInventoryWarehouses}/>
 				<Route path="/adm/inventarios/proveedores/:action?/:provider?" component={AdmInventoryProviders}/>
 			</Main>
 		</BrowserRouter>,

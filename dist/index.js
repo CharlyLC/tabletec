@@ -288,6 +288,7 @@ var WebRouter = function WebRouter() {
 	this.router.get('/adm', this.controller.home.index.bind(this.controller.default));
 	this.router.get('/adm/inventarios', this.controller.home.index.bind(this.controller.default));
 	this.router.get('/adm/inventarios/articulos/:action?/:article?', this.controller.home.index.bind(this.controller.default));
+	this.router.get('/adm/inventarios/almacenes/:action?/:warehouse?', this.controller.home.index.bind(this.controller.default));
 	this.router.get('/adm/inventarios/proveedores/:action?/:provider?', this.controller.home.index.bind(this.controller.default));
 };
 
