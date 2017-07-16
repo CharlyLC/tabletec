@@ -16,7 +16,10 @@ import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
+import Form from '../components/form.jsx';
+import Input from '../components/input.jsx';
 import ItemProperty from '../components/item-property.jsx';
+import MessageModal from '../components/message-modal.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
@@ -220,6 +223,122 @@ class WarehousesViewer extends Reflux.Component {
 	}
 }
 
+class WarehousesInsert extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			cities: [],
+			countries: [{name: 'Bolivia'}]
+		}
+
+		this.stores = [WarehousesStore];
+
+		this._formValidationRules = {
+		}
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		WarehousesActions.findAllCities((err, res)=>{
+			if(err){} else if(res){ this.setState({cities: res.cities}); }
+		});
+	}
+
+	componentDidMount() {
+		Materialize.updateTextFields();
+	}
+
+	onFormSubmit(form) {
+		var data = {
+			clientCode: this.refs.warehouseCode.value(),
+			name: this.refs.warehouseName.value(),
+			type: this.refs.warehouseType.value(),
+			country: this.refs.warehouseCountry.value(),
+			city: this.refs.warehouseCity.value(),
+			address: this.refs.warehouseAddress.value(),
+			phone: this.refs.warehousePhone.value(),
+			postcode: this.refs.warehousePostcode.value(),
+		}
+
+		this.refs.messageModal.show('sending');
+		WarehousesActions.insertOne(data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.show('success_save');
+			}
+		});
+	}
+
+	render() {
+		return(
+		<SectionCard title="Insertar nuevo almacén" iconName="library_books">
+			<div className="row no-margin">
+				<h6 style={{padding: '0rem 0.8rem'}}>Introduzca los datos para el nuevo almacén.</h6>
+			</div>
+
+			<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
+				<div style={{padding: '0.5rem 0.3rem'}}>
+					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos obligatorios</h6>
+
+					<div className="row no-margin">
+						<Input ref="warehouseSubsidiary" name="warehouseSubsidiary" className="col s6" type="text"
+							label="Sucursal" placeholder="Sucursal" disabled={true}/>
+						<Input ref="warehouseCode" name="warehouseCode" className="col s6" type="text"
+							label="Código del almacén *" placeholder="Ingrese el código del almacén" required={true}/>
+					</div>
+					<div className="row no-margin">
+						<Input ref="warehouseType" name="warehouseType" className="col s12" type="text"
+							label="Tipo *" placeholder="Ingrese el tipo de almacén" required={true}/>
+					</div>
+					<div className="row no-margin">
+						<Input ref="warehouseName" name="warehouseName" className="col s12" type="text"
+							label="Nombre *" placeholder="Ingrese el nombre del almacén" required={true}/>
+					</div>
+
+					<div className="row no-margin">
+						<Input ref="warehouseCountry" name="warehouseCountry" className="col s6" type="autocomplete"
+							label="País *" placeholder="País" required={true} options={{data: this.state.countries, key: 'name', minLength: 1}}/>
+						<Input ref="warehouseCity" name="warehouseCity" className="col s6" type="autocomplete"
+							label="Ciudad *" placeholder="Ciudad" required={true} options={{data: this.state.cities, key: 'name', minLength: 1}}/>
+					</div>
+					<div className="row no-margin">
+						<Input ref="warehouseAddress" name="warehouseAddress" className="col s12" type="text"
+							label="Dirección *" placeholder="Dirección del almacén" required={true}/>
+					</div>
+				</div>
+
+				<div style={{padding: '0.5rem 0.3rem'}}>
+					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos opcionales</h6>
+
+					<div className="row no-margin">	
+						<Input ref="warehousePhone" name="warehousePhone" className="col s6" type="text"
+							label="Teléfono" placeholder="Ingrese el número de teléfono del almacén"/>
+						<Input ref="warehousePostcode" name="warehousePostcode" className="col s6" type="text"
+							label="Código postal" placeholder="Código postal"/>
+					</div>
+				</div>
+
+				<div style={{padding: '0rem 0.3rem'}}>
+					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Finalizar</h6>
+					<div className="row">
+						<div style={{padding: '0rem 0.5rem'}}>
+							<button className="btn waves-effect waves-light col s12 red darken-2" type="submit"
+								style={{textTransform: 'none', fontWeight: 'bold', marginBottom: '1rem'}}>
+								Guardar datos
+								<i className="material-icons right">send</i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</Form>
+			<MessageModal ref="messageModal"/>
+		</SectionCard>)
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryWarehouses extends Reflux.Component {
@@ -265,6 +384,7 @@ class AdmInventoryWarehouses extends Reflux.Component {
 							<WarehousesWelcome path="welcome"/>
 							<WarehousesViewer path="ver" url={this.url} history={this.props.history}
 								warehouseCode={this.props.match.params.warehouse}/>
+							<WarehousesInsert path="insertar"/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">

@@ -84,6 +84,13 @@ var warehouses = {
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	insertOne: function(data, authorization, callback) {
+		request
+			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes/insertar')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
 	getStockReport: function(data, authorization, callback) {
 		request
 			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes/reportes/stock/' + data.warehouse)
