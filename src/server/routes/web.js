@@ -28,7 +28,7 @@ class WebRouter {
 		this.router.get('/adm/inventarios/almacenes/:action?/:warehouse?', this.controller.home.index.bind(this.controller.default));
 		this.router.get('/adm/inventarios/proveedores/:action?/:provider?', this.controller.home.index.bind(this.controller.default));
 		this.router.get('/adm/inventarios/compras/:action?/:purchase?', this.controller.home.index.bind(this.controller.default));
-
+		this.router.get('/adm/inventarios/transferencias/:action?/:transfer?', this.controller.home.index.bind(this.controller.default));
 	}
 }
 
