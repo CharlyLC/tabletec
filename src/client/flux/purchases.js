@@ -14,8 +14,8 @@ import config from '../config';
 /****************************************************************************************/
 
 var PurchasesActions = Reflux.createActions([
-	'setCompany', 'findAllArticles', 'findAllProviders',
-	'insertOne' , 'findAll', 'findOne', 'updateOneStatus'
+	'findAll', 'findOne', 'insertOne' , 'updateOneStatus',
+	'findAllArticles', 'findAllProviders'
 ]);
 
 class PurchasesStore extends Reflux.Store {
@@ -33,6 +33,39 @@ class PurchasesStore extends Reflux.Store {
         }
 
         this.listenables = PurchasesActions;
+	}
+
+	onFindAll() {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({listStatus: 'loading'});
+			api.inventory.purchases.findAll({company: this.state.company}, auth, (err, res)=>{
+				if(err){
+					this.setState({listStatus: 'error'});
+				}else{
+					res.purchases.rows.forEach(purchase=>{
+						purchase.status = this.translateStatus(purchase.status);
+					});
+					this.setState({list: res.purchases, listStatus: 'ready'});
+				}
+			});
+		}else{
+			this.setState({listStatus: 'error'});
+		}
+	}
+
+	/********************* */
+
+	translateStatus(value) {
+		switch(value) { //created, approved, cancelled, delayed, delivered, joined
+			case 'created': return 'Creado';
+			case 'approved': return 'Aprobado';
+			case 'cancelled': return 'Cancelado';
+			case 'delivered': return 'Entregado';
+			case 'delayed': return 'Retrasado';
+			case 'joined': return 'Depositado en almacén';
+			default: return 'Desconocido'
+		}
 	}
 }
 

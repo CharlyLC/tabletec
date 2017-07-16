@@ -127,10 +127,20 @@ var providers = {
 	}
 }
 
+var purchases = {
+	findAll: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/compras/listar')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+}
+
 var inventory = {
 	articles: articles,
 	warehouses: warehouses,
 	providers: providers,
+	purchases: purchases,
 }
 
 module.exports = {

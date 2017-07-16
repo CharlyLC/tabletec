@@ -52,6 +52,73 @@ class PurchasesWelcome extends React.Component {
 	}
 }
 
+class PurchasesList extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {}
+
+		this.store = PurchasesStore;
+
+		this.dropdowOptions = [
+			{
+				text:'Crear nueva compra',
+				select: this.onDropdowOptionInsert.bind(this)
+			},
+			{
+				text: 'Actualizar',
+				select: this.onDropdowOptionUpdate.bind(this)
+			}
+		];
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+		PurchasesActions.findAll();
+	}
+
+	onSelectItem(item) {
+		this.props.history.push(this.props.url + '/ver/' + item.code);
+	}
+
+	onDropdowOptionInsert() {
+		this.props.history.push(this.props.url + '/insertar/' + Tools.makeid(32));
+	}
+
+	onDropdowOptionUpdate() {
+		PurchasesActions.findAll();
+	}
+
+	render() {
+		return(
+		<SectionCard title="Lista de compras" iconName="view_list" menuID="purchasesList" menuItems={this.dropdowOptions}>
+			<div style={{padding: '0rem 1rem'}}>
+				<span>
+					Lista de todos las compras registradas en la base de datos.
+				</span>
+			</div>
+
+			<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+				<Switch match={this.state.listStatus}>
+					<Case path="loading" className="center">
+						<div className="row">
+							<Progress type="indeterminate"/>
+						</div>
+					</Case>
+					<Case path="ready">
+						<Table columns={this.state.list.columns} rows={this.state.list.rows} filterBy="business"
+							onSelectRow={this.onSelectItem.bind(this)}/>
+					</Case>
+					<Case path="error">
+						<Alert type="error" text="ERROR: No se pudo cargar la lista de compras"/>
+					</Case>
+				</Switch>
+			</div>
+
+		</SectionCard>)
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryPurchases extends Reflux.Component {
@@ -98,7 +165,7 @@ class AdmInventoryPurchases extends Reflux.Component {
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">
-
+						<PurchasesList url={this.url} history={this.props.history}/>
 					</SectionView>
 				</div>
 			</main>
