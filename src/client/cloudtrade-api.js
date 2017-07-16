@@ -134,6 +134,12 @@ var purchases = {
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	findOne: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/compras/ver/' + data.purchase)
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
 }
 
 var inventory = {

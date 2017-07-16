@@ -54,6 +54,23 @@ class PurchasesStore extends Reflux.Store {
 		}
 	}
 
+	onFindOne(purchaseCode) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({viewerStatus: 'loading'});
+			api.inventory.purchases.findOne({company: this.state.company, purchase: purchaseCode}, auth, (err, res)=>{
+				if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					res.purchase.status = this.translateStatus(res.purchase.status);
+					this.setState({selectedItem: res.purchase, viewerStatus: 'ready'});
+				}
+			});
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
+
 	/********************* */
 
 	translateStatus(value) {
