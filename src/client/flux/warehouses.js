@@ -51,6 +51,32 @@ class WarehousesStore extends Reflux.Store {
 			this.setState({listStatus: 'error'});
 		}
 	}
+
+	onFindOne(warehouseCode) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({viewerStatus: 'loading'});
+			api.inventory.warehouses.findOne({company: this.state.company, warehouse: warehouseCode}, auth, (err, res)=>{
+				if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					this.setState({selectedItem: res.warehouse, viewerStatus: 'ready'});
+				}
+			});
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
+
+	/******* */
+	getStockReport(warehouseCode, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.warehouses.getStockReport({company: this.state.company, warehouse: warehouseCode}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
 }
 
 export { WarehousesActions, WarehousesStore }

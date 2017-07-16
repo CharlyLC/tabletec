@@ -15,6 +15,8 @@ import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
+import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
+import ItemProperty from '../components/item-property.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
@@ -114,6 +116,110 @@ class WarehousesList extends Reflux.Component {
 	}
 }
 
+class WarehousesViewer extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {}
+
+		this.store = WarehousesStore;
+		this.storeKeys = ['selectedItem', 'viewerStatus'];
+
+		this.dropdowOptions = [
+			{
+				text: 'Reporte de existencias',
+				select: this.onDropdowOptionReport1.bind(this)
+			}
+		];
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		if(this.props.warehouseCode){
+			WarehousesActions.findOne(this.props.warehouseCode);
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if(this.props.warehouseCode !== nextProps.warehouseCode){
+			if(nextProps.warehouseCode){
+				WarehousesActions.findOne(nextProps.warehouseCode);
+			}
+		}
+	}
+
+	onDropdowOptionReport1() {
+		WarehousesActions.getStockReport(this.props.warehouseCode, (err, res)=>{
+			if(err){
+
+			}else{
+				window.open('data:application/pdf;base64,'+res.pdf);
+			}
+		});		
+	}
+
+	render(){
+		var item = this.state.selectedItem;
+		switch(this.state.viewerStatus){
+		case 'ready':
+			return item ? (
+			<SectionCard title="Datos de almacen" iconName="store" menuID="warehousesViewer" menuItems={this.dropdowOptions}>
+				
+				<h6 style={{fontWeight: 'bold', padding: '1rem'}}>{item.name}</h6>
+
+				<Collapsible defaultActiveIndex={0}>
+					<CollapsibleCard title="Datos del almacen" iconName="info_outline">
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Sucursal" value={'Matríz'} className="col s6"/>
+							<ItemProperty name="Código" value={item.clientCode} className="col s6"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Tipo" value={item.type} className="col s12"/>
+						</div>
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Nombre" value={item.name} className="col s12"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="País" value={item.country} className="col s6"/>
+							<ItemProperty name="Ciudad" value={item.city} className="col s6"/>
+						</div>
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Direccion" value={item.address} className="col s12"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Telefono" value={item.phone} className="col s6"/>
+							<ItemProperty name="Código postal" value={item.postcode} className="col s6"/>
+						</div>
+					</CollapsibleCard>
+				</Collapsible>
+			</SectionCard>) : (
+			<SectionCard title="Datos de almacen" iconName="store">
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de almacenes."/>
+				</div>
+			</SectionCard>);
+
+		case 'loading':
+			return (
+			<SectionCard title="Cargando datos de almacen..." iconName="store">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+
+		case 'error':
+			return (
+			<SectionCard title="Datos de almacen" iconName="store">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos del almacen"/>
+			</SectionCard>);
+		}
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryWarehouses extends Reflux.Component {
@@ -157,6 +263,8 @@ class AdmInventoryWarehouses extends Reflux.Component {
 					<SectionView className="col s12 m6 l5"  >
 						<Switch match={action}>
 							<WarehousesWelcome path="welcome"/>
+							<WarehousesViewer path="ver" url={this.url} history={this.props.history}
+								warehouseCode={this.props.match.params.warehouse}/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">

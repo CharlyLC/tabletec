@@ -18,6 +18,7 @@ import Alert from '../components/alert.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
 import Form from '../components/form.jsx';
 import Input from '../components/input.jsx';
+import ItemProperty from '../components/item-property.jsx';
 import MessageModal from '../components/message-modal.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
@@ -30,24 +31,6 @@ import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { ProvidersActions, ProvidersStore } from '../flux/providers';
 
 import Tools from '../tools';
-
-/****************************************************************************************/
-
-class ItemProperty extends Reflux.Component {
-	constructor(props) {
-        super(props);
-    }
-
-	render() {
-		return(
-		<div className={this.props.className}>
-			<h6 style={{fontWeight: 'bold', fontSize: '1rem'}}>{ this.props.name + ':'}</h6>
-			<div style={{paddingLeft: '1rem'}}>
-				<span>{ this.props.value }</span>
-			</div>
-		</div>)
-	}
-}
 
 /****************************************************************************************/
 
