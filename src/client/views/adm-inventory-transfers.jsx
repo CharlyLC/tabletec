@@ -609,6 +609,7 @@ class AdmInventoryTransfers extends Reflux.Component {
 							<TransferViewer path="ver" url={this.url} history={this.props.history}
 								transferCode={this.props.match.params.transfer}/>
 							<TransferInsert path="insertar"/>
+							<TransferUpdateStatus path="cambiar-estado" transferCode={this.props.match.params.transfer}/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">

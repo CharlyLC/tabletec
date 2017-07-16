@@ -81,6 +81,24 @@ class TransfersStore extends Reflux.Store {
 		}
 	}
 
+	updateOneStatus(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			data.company = this.state.company;
+			api.inventory.transfers.updateOneStatus(data, auth, (err, res)=>{
+				if(err){
+					callback(err)
+				}else{
+					res.transfer.status = this.translateStatus(res.transfer.status);
+					this.setState({selectedItem: res.transfer});
+					callback(null, res);
+				}
+			});
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
 
 	findAllWarehouses(callback) {
 		let auth = localStorage.getItem('authorization');
