@@ -34,12 +34,12 @@ var serverConfig = {
 var clientConfig = {
 	target: 'web',
 
-	/*resolve: {
+	resolve: {
 		alias: {
 			'react': 'react-lite',
 			'react-dom': 'react-lite'
 		}
-	},*/
+	},
 
 	entry: {
 		"tabletec": "./src/client/main-app.jsx",

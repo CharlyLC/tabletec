@@ -457,14 +457,8 @@ class PurchaseInsert extends Reflux.Component {
 							<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Información del proveedor</h6>
 
 							<div className="row no-margin">
-								{
-									(this.state.providers.length > 0) ?
-									<Select ref="provider" className="col s12" options={this.state.providers} nameField="name" valueField="code"
-										label="Proveedor *" placeholder="Seleccione un proveedor"/>
-									:
-									<Input ref="provider" name="provider" type="text" className="col s12"
-										label="Proveedor *" placeholder="Seleccione un proveedor" disabled={true}/>
-								}
+								<Select ref="provider" className="col s12" options={this.state.providers} nameField="name" valueField="code"
+									label="Proveedor *" placeholder="Seleccione un proveedor"/>
 							</div>
 							<div className="row no-margin">
 								<Input ref="shoppingCantactName" name="shoppingCantactName" type="text" className="col s6"

@@ -329,30 +329,22 @@ class TransferInsert extends Reflux.Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(prevState.originWarehouses !== this.state.originWarehouses){
-			this.onWarehouseOriginChange();
+	}
+
+	onWarehouseOriginChange(sow) {
+		if(sow){
+			let dws = this.state.originWarehouses.map((w)=>{
+				return w.code !== sow ? w : null;
+			});
+
+			this.setState({destinationWarehouses: dws});
+			this.refs.transactions.clearSelectedTransactions();
+		}else{
+			this.refs.submitBtn.disable();
 		}
-
-		this.onWarehouseDestinationChange();
 	}
 
-	onWarehouseOriginChange() {
-		let sow = this.refs.origin.value();
-		let sdw = this.refs.destination.value();
-
-		if(!sow || !sdw){ this.refs.submitBtn.disable(); }
-		else{ this.refs.submitBtn.enable(); }
-
-		let dws = this.state.originWarehouses.map((w)=>{
-			return w.code !== sow ? w : null;
-		});
-
-		this.setState({destinationWarehouses: dws});
-		this.refs.transactions.clearSelectedTransactions();
-	}
-
-	onWarehouseDestinationChange() {
-		let sdw = this.refs.destination.value();
+	onWarehouseDestinationChange(sdw) {
 		if(!sdw){ this.refs.submitBtn.disable(); }
 		else{ this.refs.submitBtn.enable(); }
 	}
