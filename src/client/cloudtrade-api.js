@@ -147,6 +147,13 @@ var purchases = {
 			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	updateOneStatus: function(data, authorization, callback) {
+		request
+			.put(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/compras/cambiar-estado')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
 }
 
 var inventory = {

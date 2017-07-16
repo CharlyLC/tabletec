@@ -541,6 +541,105 @@ class PurchaseInsert extends Reflux.Component {
 	}
 }
 
+class PurchaseUpdateStatus extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {}
+
+		this.store = PurchasesStore;
+	}
+
+	componentDidMount() {
+		if(this.state.selectedItem){
+			if(this.props.purchaseCode === this.state.selectedItem.code){
+				this.onSelectStatus();
+			}else{
+				PurchasesActions.findOne(this.props.purchaseCode);
+			}
+		}else{
+			PurchasesActions.findOne(this.props.purchaseCode);
+		}
+	}
+
+	componentDidUpdate() {
+		this.onSelectStatus();
+	}
+
+	onSelectStatus() {
+		if(this.state.viewerStatus === 'ready'){
+			if(this.state.selectedItem.status === this.refs.status.value()){
+				this.refs.submitBtn.disable();
+			}else{
+				this.refs.submitBtn.enable();
+			}
+		}
+	}
+
+	onFormSubmit(form) {
+		var data = {
+			code: this.state.selectedItem.code,
+			status: this.refs.status.value()
+		}
+
+		this.refs.messageModal.show('sending');
+		PurchasesActions.updateOneStatus(data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.show('success_save');
+			}
+		});
+	}
+
+	render() {
+		let item = this.state.selectedItem;
+		switch(this.state.viewerStatus){
+		case 'ready':
+			return item ? (
+			<SectionCard title="Orden de compra" iconName="shopping_cart">
+				<div style={{padding: '0rem 1rem'}}>
+					<span>Cambiar estado de la orden de compra.</span>
+				</div>
+				<h6 style={{fontWeight: 'bold', padding: '0.3rem 0.8rem'}}>{item.business}</h6>
+
+				<Form ref="updateStatusForm" onSubmit={this.onFormSubmit.bind(this)}>
+					<div className="row no-margin" style={{padding: '0rem 0rem 1rem 1.5rem'}}>
+						<h6>{'Estado actual: ' + item.status}</h6>
+					</div>
+					<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+						<Select ref="status" className="col s12" nameField="name" valueField="value"
+							options={[{name:'Creado', value:'created'}, {name:'Aprobado', value:'approved'}, {name:'Entregado', value:'delivered'}, {name:'Cancelado', value:'cancelled'}, {name:'Retrasado', value:'delayed'}]}
+							label="Nuevo estado" placeholder="Seleccione un estado" onChange={this.onSelectStatus.bind(this)}/>
+					</div>
+					<div className="row no-margin" style={{padding: '0rem 0.8rem 1rem 0.8rem'}}>
+						<h6 style={{fontWeight: 'bold'}}>Finalizar</h6>
+						<Button ref="submitBtn" className="col s12 red darken-2" text="Guardar datos" iconName="send" type="submit"/>
+					</div>
+				</Form>
+				<MessageModal ref="messageModal"/>
+			</SectionCard>) : (
+			<SectionCard title="Orden de compra" iconName="shopping_cart">
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de compras."/>
+				</div>
+			</SectionCard>);
+		case 'loading':
+			return (
+			<SectionCard title="Cargando datos de compra..." iconName="shopping_cart">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+		case 'error':
+			return (
+			<SectionCard title="Orden de compra" iconName="shopping_cart">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos"/>
+			</SectionCard>);
+		}
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryPurchases extends Reflux.Component {
@@ -587,6 +686,7 @@ class AdmInventoryPurchases extends Reflux.Component {
 							<PurchaseViewer path="ver" url={this.url} history={this.props.history}
 								purchaseCode={this.props.match.params.purchase}/>
 							<PurchaseInsert path="insertar"/>
+							<PurchaseUpdateStatus path="cambiar-estado" purchaseCode={this.props.match.params.purchase}/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">
