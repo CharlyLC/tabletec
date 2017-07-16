@@ -43,6 +43,14 @@ export class Collapsible extends React.Component {
 		//$(this.refs.collapsible).collapsible('open', 0);
 	}
 
+	componentDidUpdate() {
+		$(this.refs.collapsible).collapsible();
+
+		if(typeof this.props.defaultActiveIndex === 'number'){
+			$(this.refs.collapsible).collapsible('open', this.props.defaultActiveIndex);
+		}
+	}
+
 	openCard(index) {
 		$(this.refs.collapsible).collapsible('open', index);
 	}

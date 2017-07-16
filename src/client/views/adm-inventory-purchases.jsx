@@ -15,6 +15,7 @@ import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
+import { Button } from '../components/button.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
 import Form from '../components/form.jsx';
 import Input from '../components/input.jsx';
@@ -23,14 +24,100 @@ import MessageModal from '../components/message-modal.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
+import Select from '../components/select.jsx';
 import { Switch, Case } from '../components/switch.jsx';
 import Table from '../components/table.jsx';
+import { DataImporter } from '../components/data-importer.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { PurchasesActions, PurchasesStore } from '../flux/purchases';
 
 import Tools from '../tools';
+
+/****************************************************************************************/
+
+class ArticleMutator extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+
+	componentDidMount() {
+		this.props.article.purchase = { quantity: 0, unitPrice: 0, remark: '' }
+		this.refs.quantity.value('0');
+		this.refs.unitPrice.value('0');
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.article !== this.props.article){
+			this.props.article.purchase = { quantity: 0, unitPrice: 0, remark: '' }
+
+			this.refs.quantity.value('0');
+			this.refs.unitPrice.value('0');
+			this.refs.remark.value = '';
+		}
+	}
+
+	onQuantityChange() {
+		let quantity = parseInt(this.refs.quantity.value(), 10);
+
+		if(Number.isInteger(quantity)){
+			this.refs.quantity.value(quantity.toString()); // This line doesn't trigger a new onChange event
+		}else{
+			quantity = 0;
+			this.refs.quantity.value('0'); // This line doesn't trigger a new onChange event
+		}
+		
+		this.props.article.purchase.quantity = quantity;
+	}
+
+	onUnitPriceChange() {
+		this.props.article.purchase.unitPrice = parseFloat(this.refs.unitPrice.value());
+	}
+
+	onMeasurementChange() {
+		this.props.article.purchase.measurement = this.refs.measurement.value();
+	}
+
+	onRemarkChange() {
+		this.props.article.purchase.remark = this.refs.remark.value;;
+	}
+
+	render() {
+		return(
+		<div>
+			<h6 style={{fontWeight: 'bold', padding: '0.5rem 0.5rem'}}>
+				{'Artículo: ' + this.props.article.name}
+			</h6>
+			<div className="row no-margin" >
+				<Input ref="quantity" name={'quantity' + this.props.id} placeholder="Cantidad" label="Cantidad *" className="col s4" type="text"
+					onChange={this.onQuantityChange.bind(this)} required={true}/>
+				<Input ref="unitPrice" name={'unitPrice' + this.props.id} placeholder="Precio unitario" label="Precio unitario *" className="col s4" type="text"
+					onChange={this.onUnitPriceChange.bind(this)} required={true}/>
+				<Input ref="measurement" name={'measurement' + this.props.id} placeholder="Unidad de medida" label="Unidad de medida *" className="col s4" type="text"
+					onChange={this.onMeasurementChange.bind(this)} required={true}/>
+			</div>
+			<div className="row no-margin">
+				<div className="input-field col s12">
+					<textarea ref="remark" id={'remark' + this.props.id} className="materialize-textarea" data-length="1024"
+						placeholder="Observación" onChange={this.onRemarkChange.bind(this)}/>
+					<label htmlFor={'remark' + this.props.id}>Observación</label>
+				</div>
+			</div>
+		</div>)
+	}
+}
+
+class ArticleImporter extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+
+	render() {
+		let article = this.props.transaction;
+		return(<ArticleMutator id={article.code} article={article}/>)
+	}
+}
 
 /****************************************************************************************/
 
@@ -233,6 +320,227 @@ class PurchaseViewer extends Reflux.Component {
 	}
 }
 
+class PurchaseInsert extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			providers: []
+		}
+
+		this.stores = [PurchasesStore];
+
+		this._formValidationRules = {
+		}
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		PurchasesActions.findAllProviders((err, res)=>{
+			if(res && res.providers){
+				this.setState({providers: res.providers.rows});
+			}
+		});
+	}
+
+	componentDidMount() {
+		Materialize.updateTextFields();
+	}
+
+	onFormSubmit(form) {
+		let transactions = this.refs.transactions.getSelectedTransactions();
+		let data = {
+			business: 	this.refs.shoppingBusiness.value(),
+			order: 		this.refs.shoppingOrder.value(),
+			guideNumber: 	this.refs.shoppingNGuide.value(),
+			providerCode: 	this.refs.provider.value(),
+			contactName:	this.refs.shoppingCantactName.value(),
+			payDate: 		this.refs.shoppingPayDate.value(),
+			billingDir: 	this.refs.shoppingBillingDir.value(),
+			billingCountry:	this.refs.shoppingBillingCountry.value(),
+			billingDep: 	this.refs.shoppingBillingDep.value(),
+			shippingDir: 		this.refs.shopShippingDir.value(),
+			shippingCountry:	this.refs.shopShippingCountry.value(),
+			shippingDep:		this.refs.shopShippingState.value(),
+			shippingProvince: 	this.refs.shopShippingProvince.value(),
+			shippingPostal: 	this.refs.shopShippingPostal.value(),
+			terms: 			this.refs.shopTerms.value,
+			description:	this.refs.shopDescription.value,
+			articles: transactions.map(article=>{
+				return {
+					code: article.code,
+					quantity: article.purchase.quantity,
+					unitPrice: article.purchase.unitPrice,
+					measurement: article.purchase.measurement,
+					remark: article.purchase.remark
+				}
+			})
+		}
+
+		let p1 = new Promise((resolve, reject)=>{
+			if(data.business.length > 0){ resolve(); }else{ reject({opencard: 0}); }
+		});
+		let p2 = new Promise((resolve, reject)=>{
+			if(data.providerCode.length > 0){ resolve(); }else{ reject({opencard: 0}); }
+		});
+		let p3 = new Promise((resolve, reject)=>{
+			if(data.billingDir.length > 0){ resolve(); }else{ reject({opencard: 1}); }
+		});
+		let p4 = new Promise((resolve, reject)=>{
+			if(data.shippingDir.length > 0){ resolve(); }else{ reject({opencard: 1}); }
+		});
+		let p5 = new Promise((resolve, reject)=>{
+			if(data.articles.length > 0){ resolve(); }else{ reject({opencard: 3}); }
+		});
+
+		Promise.all([p1, p2, p3, p4, p5]).then(values => {
+			this.refs.messageModal.show('sending');
+			PurchasesActions.insertOne(data, (err, res)=>{
+				if(err){
+					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+				}else{
+					this.refs.messageModal.show('success_save');
+				}
+			});
+		}).catch(err=>{
+			this.refs.collapsible.openCard(err.opencard);
+			this.refs.insertForm.valid();
+		});
+	}
+
+	onRequireArticles(callback) {
+		PurchasesActions.findAllArticles((err, res)=>{
+			if(res){ callback(null, {data: res.articles}); }else{ callback(err); }
+		});
+	}
+
+	onDataImporterChange() {
+		Materialize.updateTextFields();
+		this.refs.insertForm.revalidate();
+	}
+
+	render() {
+		let articlesColumns = [
+			{ name: 'clientCode', text: 'Código', visible: true },
+			{ name: 'name', text: 'Nombre', visible: true },
+			{ name: 'brand', text: 'Marca', visible: true },
+			{ name: 'category', text: 'Categoría', visible: true }
+		];
+
+		return(
+		<SectionCard title="Crear una orden compra" iconName="shopping_cart" >
+			<div style={{padding: '0rem 1rem'}}>
+				<span>Introduzca los datos para la orden de compra.</span>
+			</div>
+	
+			<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
+				<Collapsible ref="collapsible" defaultActiveIndex={0}>
+					<CollapsibleCard title="Información de la orden de compra" iconName="shop">
+						<div style={{padding: '0rem 0.3rem'}}>
+							<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Información de la orden de compra</h6>
+
+							<div className="row no-margin">
+								<Input ref="shoppingBusiness" name="shoppingBusiness" type="text" className="col s12"
+									label="Asunto *" placeholder="(p. ej. : Equipo de oficina)" required={true}/>
+							</div>
+
+							<div className="row no-margin">
+								<Input ref="shoppingOrder" name="shoppingOrder" type="text" className="col s6"
+									label="Referencia del pedido" placeholder="Referencia del pedido"/>
+								<Input ref="shoppingNGuide" name="shoppingNGuide" type="text" className="col s6"
+									label="Número de guía" placeholder="Número de guía"/>
+							</div>
+						</div>
+
+						<div style={{padding: '0rem 0.3rem 1rem'}}>
+							<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Información del proveedor</h6>
+
+							<div className="row no-margin">
+								{
+									(this.state.providers.length > 0) ?
+									<Select ref="provider" className="col s12" options={this.state.providers} nameField="name" valueField="code"
+										label="Proveedor *" placeholder="Seleccione un proveedor"/>
+									:
+									<Input ref="provider" name="provider" type="text" className="col s12"
+										label="Proveedor *" placeholder="Seleccione un proveedor" disabled={true}/>
+								}
+							</div>
+							<div className="row no-margin">
+								<Input ref="shoppingCantactName" name="shoppingCantactName" type="text" className="col s6"
+									label="Nombre de contacto" placeholder="Nombre de contacto"/>
+								<Input ref="shoppingPayDate" name="shoppingPayDate" type="date" className="col s6"
+									label="Fecha de pago" placeholder="Fecha de pago"/>
+							</div>
+						</div>
+					</CollapsibleCard>
+					<CollapsibleCard title="Información de direcciones" iconName="location_on">
+						<div style={{padding: '0rem 0.3rem'}}>
+							<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Detalles de la dirección de facturación</h6>
+							<div className="row no-margin">
+								<Input ref="shoppingBillingDir" name="shoppingBillingDir" type="text" className="col s12"
+									label="Dirección de facturación *" placeholder="Dirección de facturación" required={true}/>
+							</div>
+							<div className="row no-margin">
+								<Input ref="shoppingBillingCountry" name="shoppingBillingCountry" type="text" className="col s6"
+									label="País de facturación" placeholder="País de facturación"/>
+								<Input ref="shoppingBillingDep" name="shoppingBillingDep" type="text" className="col s6"
+									label="Departamento (Estado)" placeholder="Departamento (Estado) de facturación"/>
+							</div>
+						</div>
+
+						<div style={{padding: '0rem 0.3rem 1rem'}}>
+							<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Detalles de la dirección de envío</h6>
+							<div className="row no-margin">
+								<Input ref="shopShippingDir" name="shopShippingDir" type="text" className="col s12"
+									label="Dirección de envío *" placeholder="Dirección de envío" required={true}/>
+							</div>
+							<div className="row no-margin">
+								<Input ref="shopShippingCountry" name="shopShippingCountry" type="text" className="col s6"
+									label="País de envío" placeholder="País de envío"/>
+								<Input ref="shopShippingState" name="shopShippingState" type="text" className="col s6"
+									label="Departamento (Estado)" placeholder="Departamento (Estado) de envío"/>
+							</div>
+							<div className="row no-margin">
+								<Input ref="shopShippingProvince" name="shopShippingProvince" type="text" className="col s6"
+									label="Provincia de envío" placeholder="Provincia de envío"/>
+								<Input ref="shopShippingPostal" name="shopShippingPostal" type="text" className="col s6"
+									label="Código postal" placeholder="Código postal"/>
+							</div>
+						</div>
+					</CollapsibleCard>
+					<CollapsibleCard title="Información adicional" iconName="import_contacts">
+						<div className="row no-margin">
+							<div className="input-field col s12">
+								<textarea ref="shopTerms" id="textarea1" className="materialize-textarea" data-length="1024" placeholder="Términos y condiciones">
+								</textarea>
+								<label htmlFor="textarea1">Términos y condiciones</label>
+							</div>
+						</div>
+						<div className="row no-margin">
+							<div className="input-field col s12">
+								<textarea ref="shopDescription" id="textarea2" className="materialize-textarea" data-length="1024" placeholder="Descripción">
+								</textarea>
+								<label htmlFor="textarea2">Detalles de la descripción</label>
+							</div>
+						</div>
+					</CollapsibleCard>
+					<CollapsibleCard title="Detalles sobre los elementos" iconName="library_books">
+						<DataImporter ref="transactions" columns={articlesColumns} dataComponent={ArticleImporter} filterBy="name"
+							loadData={this.onRequireArticles.bind(this)} onChange={this.onDataImporterChange.bind(this)}/>
+					</CollapsibleCard>
+				</Collapsible>
+
+				<div className="row no-margin" style={{padding: '0rem 0.8rem 1rem 0.8rem'}}>
+					<h6 style={{fontWeight: 'bold'}}>Finalizar</h6>
+					<Button ref="submitBtn" className="col s12 red darken-2" text="Guardar datos" iconName="send" type="submit"/>
+				</div>
+			</Form>
+			<MessageModal ref="messageModal"/>
+		</SectionCard>)
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryPurchases extends Reflux.Component {
@@ -278,6 +586,7 @@ class AdmInventoryPurchases extends Reflux.Component {
 							<PurchasesWelcome path="welcome"/>
 							<PurchaseViewer path="ver" url={this.url} history={this.props.history}
 								purchaseCode={this.props.match.params.purchase}/>
+							<PurchaseInsert path="insertar"/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">

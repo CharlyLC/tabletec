@@ -71,6 +71,34 @@ class PurchasesStore extends Reflux.Store {
 		}
 	}
 
+	onInsertOne(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			data.company = this.state.company;
+			api.inventory.purchases.insertOne(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	findAllProviders(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.providers.findAll({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	findAllArticles(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.articles.findAll({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
 	/********************* */
 
 	translateStatus(value) {
