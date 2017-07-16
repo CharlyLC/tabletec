@@ -84,6 +84,19 @@ var providers = {
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	insertOne: function(data, authorization, callback) {
+		request
+			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/proveedores/insertar')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	findAllCities: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/proveedores/listar-ciudades')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	}
 }
 
 var inventory = {

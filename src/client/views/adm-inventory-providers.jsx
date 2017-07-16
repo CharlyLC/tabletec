@@ -16,6 +16,9 @@ import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
+import Form from '../components/form.jsx';
+import Input from '../components/input.jsx';
+import MessageModal from '../components/message-modal.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
@@ -24,7 +27,7 @@ import Table from '../components/table.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
-import { ProviderActions, ProviderStore } from '../flux/provider';
+import { ProvidersActions, ProvidersStore } from '../flux/providers';
 
 import Tools from '../tools';
 
@@ -71,7 +74,7 @@ class ProvidersList extends Reflux.Component {
 
 		this.state = {}
 
-		this.store = ProviderStore;
+		this.store = ProvidersStore;
 
 		this.dropdowOptions = [
 			{
@@ -87,7 +90,7 @@ class ProvidersList extends Reflux.Component {
 
 	componentWillMount() {
 		super.componentWillMount();
-		ProviderActions.findAll();
+		ProvidersActions.findAll();
 	}
 
 	onSelectItem(item) {
@@ -99,7 +102,7 @@ class ProvidersList extends Reflux.Component {
 	}
 
 	onDropdowOptionUpdate() {
-		ProviderActions.findAll();
+		ProvidersActions.findAll();
 	}
 
 	render() {
@@ -137,7 +140,7 @@ class ProviderViewer extends Reflux.Component {
 
 		this.state = {}
 
-		this.store = ProviderStore;
+		this.store = ProvidersStore;
 
 		this.dropdowOptions = [];
 	}
@@ -146,14 +149,14 @@ class ProviderViewer extends Reflux.Component {
 		super.componentWillMount();
 
 		if(this.props.providerCode){
-			ProviderActions.findOne(this.props.providerCode);
+			ProvidersActions.findOne(this.props.providerCode);
 		}
 	}
 
 	componentWillReceiveProps(nextProps) {
 		if(this.props.providerCode !== nextProps.providerCode){
 			if(nextProps.providerCode){
-				ProviderActions.findOne(nextProps.providerCode);
+				ProvidersActions.findOne(nextProps.providerCode);
 			}
 		}
 	}
@@ -214,6 +217,123 @@ class ProviderViewer extends Reflux.Component {
 	}
 }
 
+class ProviderInsert extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			cities: []
+		}
+
+		this.stores = [ProvidersStore];
+
+		this._formValidationRules = {
+			rules: {
+				email: { email: true }
+			},
+			messages: {
+				email: {
+					required: 'Debes ingresar un email',
+					email: 'Por favor, introduzca una dirección email válida'
+				}
+			}
+		}
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		ProvidersActions.findAllCities((err, res)=>{
+			if(err){} else if(res){ this.setState({cities: res.cities}); }
+		});
+	}
+
+	componentDidMount() {
+		Materialize.updateTextFields();
+	}
+
+	onFormSubmit(form) {
+		var data = {
+			name: this.refs.providerName.value(),
+			nit: this.refs.providerNIT.value(),
+			description: this.refs.providerDescription.value,
+			city: this.refs.providerCity.value(),
+			phone: this.refs.providerPhone.value(),
+			email: this.refs.email.value(),
+			address: this.refs.providerAddress.value()
+		}
+
+		this.refs.messageModal.show('sending');
+		ProvidersActions.insertOne(data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.show('success_save');
+			}
+		});
+	}
+
+	render() {
+		return(
+		<SectionCard title="Insertar nuevo proveedor" iconName="library_books">
+			<div style={{padding: '0rem 1rem'}}>
+				<span>Introduzca los datos para el nuevo proveedor.</span>
+			</div>
+
+			<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
+				<div style={{padding: '0rem 0.3rem'}}>
+					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos obligatorios</h6>
+
+					<div className="row no-margin">
+						<Input ref="providerName" name="providerName" className="col s6" type="text"
+							label="Nombre del proveedor *" placeholder="Ingrese el nombre del proveedor" required={true}/>
+						<Input ref="providerNIT" name="providerNIT" className="col s6" type="text"
+							label="NIT *" placeholder="Ingrese el NIT del proveedor" required={true}/>
+					</div>
+
+					<div className="row no-margin">
+						<Input ref="providerCity" name="providerCity" className="col s6" type="autocomplete"
+							label="Ciudad del proveedor *" placeholder="Ingrese la ciudad del proveedor" required={true} options={{data: this.state.cities, key: 'name', minLength: 1}}/>
+						<Input ref="providerPhone" name="providerPhone" className="col s6" type="text"
+							label="Teléfono *" placeholder="Ingrese el teléfono del proveedor" required={true}/>
+					</div>
+				</div>
+				<div style={{padding: '0rem 0.3rem'}}>
+					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos opcionales</h6>
+					<div className="row no-margin">
+						<div className="input-field col s12">
+							<textarea ref="providerDescription" id="providerDescription" className="materialize-textarea" data-length="10240" placeholder="Detalles de la descripción"/>
+							<label htmlFor="providerDescription">{'Detalles de la descripción'}</label>
+						</div>
+					</div>
+					<div className="row no-margin">
+						<Input ref="email" name="email" className="col s12" type="email" label="Email" placeholder="Email"/>
+					</div>
+					<div className="row no-margin">
+						<Input ref="providerAddress" name="providerAddress" type="text" label="Dirección"
+							className="col s12" placeholder="Ingrese la dirección del proveedor"/>
+					</div>
+				</div>
+
+				<div className="row">
+					<h6 style={{fontWeight: 'bold', padding: '0rem 0.8rem'}}>Finalizar</h6>
+					<div>
+						<div style={{padding: '0rem 0.5rem'}}>
+							<button className="btn waves-effect waves-light col s12 red darken-2" type="submit"
+								style={{textTransform: 'none', fontWeight: 'bold', marginBottom: '1rem'}}>
+								Guardar datos
+								<i className="material-icons right">send</i>
+							</button>
+						</div>
+					</div>
+				</div>
+			</Form>
+
+			<MessageModal ref="messageModal"/>
+		</SectionCard>);
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryProviders extends Reflux.Component {
@@ -259,6 +379,7 @@ class AdmInventoryProviders extends Reflux.Component {
 							<ProvidersWelcome path="welcome"/>
 							<ProviderViewer path="ver" url={this.url} history={this.props.history}
 								providerCode={this.props.match.params.provider}/>
+							<ProviderInsert path="insertar"/>
 						</Switch>
 					</SectionView>
 					<SectionView className="col s12 m6 l7">

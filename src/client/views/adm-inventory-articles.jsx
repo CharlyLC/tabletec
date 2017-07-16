@@ -29,7 +29,7 @@ import Table from '../components/table.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
-import { ArticleActions, ArticleStore } from '../flux/article';
+import { ArticlesActions, ArticlesStore } from '../flux/articles';
 
 import Tools from '../tools';
 import config from '../config';
@@ -90,7 +90,7 @@ class ArticleList extends Reflux.Component {
 
 		this.state = {}
 
-		this.store = ArticleStore;
+		this.store = ArticlesStore;
 		this.storeKeys = ['list', 'listStatus'];
 
 		this.dropdowOptions = [
@@ -108,7 +108,7 @@ class ArticleList extends Reflux.Component {
 	componentWillMount() {
 		super.componentWillMount();
 
-		ArticleActions.findAll();
+		ArticlesActions.findAll();
 	}
 
 	onDropdowOptionInsert(item) {
@@ -116,7 +116,7 @@ class ArticleList extends Reflux.Component {
 	}
 
 	onDropdowOptionUpdate(item) {
-		ArticleActions.findAll();
+		ArticlesActions.findAll();
 	}
 
 	onSelectArticle(article) {
@@ -160,7 +160,7 @@ class ArticleViewer extends Reflux.Component {
 
 		this.state = {}
 
-		this.store = ArticleStore;
+		this.store = ArticlesStore;
 		this.storeKeys = ['selectedItem', 'viewerStatus'];
 
 		this.dropdowOptions = [];
@@ -170,14 +170,14 @@ class ArticleViewer extends Reflux.Component {
 		super.componentWillMount();
 
 		if(this.props.articleCode){
-			ArticleActions.findOne(this.props.articleCode);
+			ArticlesActions.findOne(this.props.articleCode);
 		}
 	}
 
 	componentWillReceiveProps(nextProps) {
 		if(this.props.articleCode !== nextProps.articleCode){
 			if(nextProps.articleCode){
-				ArticleActions.findOne(nextProps.articleCode);
+				ArticlesActions.findOne(nextProps.articleCode);
 			}
 		}
 	}
@@ -248,7 +248,7 @@ class ArticleInsert extends Reflux.Component {
 			categories: []
 		}
 
-		this.stores = [ArticleStore];
+		this.stores = [ArticlesStore];
 
 		this._formValidationRules = {
 			rules: {
@@ -273,10 +273,10 @@ class ArticleInsert extends Reflux.Component {
 	componentWillMount() {
 		super.componentWillMount();
 
-		ArticleActions.findAllBrands((err, res)=>{
+		ArticlesActions.findAllBrands((err, res)=>{
 			if(err){} else if(res){ this.setState({brands: res.brands}); }
 		});
-		ArticleActions.findAllCategories((err, res)=>{
+		ArticlesActions.findAllCategories((err, res)=>{
 			if(err){} else if(res){ this.setState({categories: res.categories}); }
 		});
 	}
@@ -289,7 +289,6 @@ class ArticleInsert extends Reflux.Component {
 
 	onFormSubmit(form) {
 		var data = {
-			company: this.state.company,
 			clientCode: this.refs.articleCode.value(),
 			barCode: this.refs.articleBarCode.value(),
 			name: this.refs.articleName.value(),
@@ -301,7 +300,7 @@ class ArticleInsert extends Reflux.Component {
 		}
 
 		this.refs.messageModal.show('sending');
-		ArticleActions.insertOne(data, (err, res)=>{
+		ArticlesActions.insertOne(data, (err, res)=>{
 			if(err){
 				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 			}else{

@@ -13,37 +13,37 @@ import config from '../config';
 
 /****************************************************************************************/
 
-var ArticleActions = Reflux.createActions([
+var ProvidersActions = Reflux.createActions([
 	'findAll', 'findOne', 'insertOne',
-	'findAllBrands', 'findAllCategories'
+	'findAllCities'
 ]);
 
-class ArticleStore extends Reflux.Store {
+class ProvidersStore extends Reflux.Store {
     constructor() {
         super();
 
-        this.state = {
+		this.state = {
 			company: config.company,
 
 			selectedItem: null,
             list: { columns: [], rows: [] },
 
-			listStatus: 'loading', // loading, ready, error
-			viewerStatus: 'ready', // loading, ready, error
+			listStatus: 'loading', // ready, loading, error
+			viewerStatus: 'ready',
         }
 
-        this.listenables = ArticleActions;
+		this.listenables = ProvidersActions;
 	}
 
 	onFindAll() {
 		let auth = localStorage.getItem('authorization');
 		if(auth){
 			this.setState({listStatus: 'loading'});
-			api.inventory.articles.findAll({company: this.state.company}, auth, (err, res)=>{
+			api.inventory.providers.findAll({company: this.state.company}, auth, (err, res)=>{
 				if(err){
 					this.setState({listStatus: 'error'});
 				}else{
-					this.setState({list: res.articles, listStatus: 'ready'});
+					this.setState({list: res.providers, listStatus: 'ready'});
 				}
 			});
 		}else{
@@ -51,15 +51,15 @@ class ArticleStore extends Reflux.Store {
 		}
 	}
 
-	onFindOne(articleCode) {
+	onFindOne(providerCode) {
 		let auth = localStorage.getItem('authorization');
 		if(auth){
 			this.setState({viewerStatus: 'loading'});
-			api.inventory.articles.findOne({company: this.state.company, article: articleCode}, auth, (err, res)=>{
+			api.inventory.providers.findOne({company: this.state.company, provider: providerCode}, auth, (err, res)=>{
 				if(err){
 					this.setState({viewerStatus: 'error'});
 				}else{
-					this.setState({selectedItem: res.article, viewerStatus: 'ready'});
+					this.setState({selectedItem: res.provider, viewerStatus: 'ready'});
 				}
 			});
 		}else{
@@ -71,29 +71,20 @@ class ArticleStore extends Reflux.Store {
 		let auth = localStorage.getItem('authorization');
 		if(auth){
 			data.company = this.state.company;
-			api.inventory.articles.insertOne(data, auth, callback);
-		}else{
-			callback({status: 500, response:{message: 'Acceso no autorizado'}});
-		}
-	}
-	
-	findAllBrands(callback) {
-		let auth = localStorage.getItem('authorization');
-		if(auth){
-			api.inventory.articles.findAllBrands({company: this.state.company}, auth, callback);
+			api.inventory.providers.insertOne(data, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}
 	}
 
-	findAllCategories(callback) {
+	findAllCities(callback) {
 		let auth = localStorage.getItem('authorization');
 		if(auth){
-			api.inventory.articles.findAllCategories({company: this.state.company}, auth, callback);
+			api.inventory.providers.findAllCities({company: this.state.company}, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}
 	}
 }
 
-export { ArticleActions, ArticleStore }
+export { ProvidersActions, ProvidersStore }
