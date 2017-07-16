@@ -97,6 +97,12 @@ var warehouses = {
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	findAllArticlesFor: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes/ver-articulos/' + data.warehouse)
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
 }
 
 var providers = {
@@ -161,6 +167,19 @@ var transfers = {
 		request
 			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/transferencias/listar')
 			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	findOne: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/transferencias/ver/' + data.transfer)
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	insertOne: function(data, authorization, callback) {
+		request
+			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/transferencias/insertar')
+			.set('authorization', authorization)
+			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
 }

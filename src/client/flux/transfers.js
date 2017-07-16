@@ -54,6 +54,52 @@ class TransfersStore extends Reflux.Store {
 		}
 	}
 
+	findOne(transferCode) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({viewerStatus: 'loading'});
+			api.inventory.transfers.findOne({company: this.state.company, transfer: transferCode}, auth, (err, res)=>{
+				if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					res.transfer.status = this.translateStatus(res.transfer.status);
+					this.setState({selectedItem: res.transfer, viewerStatus: 'ready'});
+				}
+			});
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
+
+	insertOne(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		data.company = this.state.company;
+		if(auth){
+			api.inventory.transfers.insertOne(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+
+	findAllWarehouses(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.warehouses.findAll({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	findAllArticlesFor(warehouse, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.warehouses.findAllArticlesFor({company: this.state.company, warehouse}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
 	/********************* */
 
 	translateStatus(value) {
