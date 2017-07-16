@@ -20,6 +20,7 @@ import { AdmInventory } from './views/adm-inventory.jsx';
 import { AdmInventoryArticles } from './views/adm-inventory-articles.jsx';
 import { AdmInventoryWarehouses } from './views/adm-inventory-warehouses.jsx';
 import { AdmInventoryProviders } from './views/adm-inventory-providers.jsx';
+import { AdmInventoryPurchases } from './views/adm-inventory-purchases.jsx';
 
 /****************************************************************************************/
 
@@ -58,6 +59,7 @@ class App {
 				<Route path="/adm/inventarios/articulos/:action?/:article?" component={AdmInventoryArticles}/>
 				<Route path="/adm/inventarios/almacenes/:action?/:warehouse?" component={AdmInventoryWarehouses}/>
 				<Route path="/adm/inventarios/proveedores/:action?/:provider?" component={AdmInventoryProviders}/>
+				<Route path="/adm/inventarios/compras/:action?/:purchase?" component={AdmInventoryPurchases}/>
 			</Main>
 		</BrowserRouter>,
 		this._mainSection);
