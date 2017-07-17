@@ -20,6 +20,8 @@ class HomeView extends React.Component {
 		<html>
 			<head>
 				<meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1"/>
+				<title>TableTec</title>
+				<link rel="icon" href="/images/tabletec-icon.png"/>
 				<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
 				<link rel="stylesheet" type="text/css" href="/css/tabletec.min.css"/>
 			</head>
