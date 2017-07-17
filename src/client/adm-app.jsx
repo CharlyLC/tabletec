@@ -41,7 +41,7 @@ class App {
 
 	onDOMContentLoaded() {
 		this._mainSection = window.document.getElementById('app-main');
-
+		$.extend($.validator.messages, { required: "Campo obligatorio" });
 		this.render();
 	}
 
