@@ -112,6 +112,14 @@ var warehouses = {
 				.set('authorization', authorization)
 				.end((err, res)=>{ stdResCallback(err, res, callback) });
 		},
+	},
+	outlets: {
+		findAll: function(data, authorization, callback) {
+			request
+				.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes-salidas/listar')
+				.set('authorization', authorization)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
 	}
 }
 
