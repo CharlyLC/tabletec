@@ -33,7 +33,25 @@ class HomeUserMenu extends UserMenu {
 	render() {
 		return(
 		<ul id="navbarUserMenu" className="dropdown-content">
-			<li><Link to="/adm">Administración</Link></li>
+			<li><a href="/adm">Administración</a></li>
+			<li><a href="/adm/inventarios">Inventarios</a></li>
+			<li className="divider"></li>
+			<li>
+				<a onClick={this.onLogout.bind(this)}>Cerrar sesión</a>
+			</li>
+		</ul>)
+	}
+}
+
+class AdminUserMenu extends UserMenu {
+	constructor(props) {
+        super(props);
+	}
+
+	render() {
+		return(
+		<ul id="navbarUserMenu" className="dropdown-content">
+			<li><a href="/">Página principal</a></li>
 			<li><Link to="/adm/inventarios">Inventarios</Link></li>
 			<li className="divider"></li>
 			<li>
@@ -51,7 +69,7 @@ class InventoryUserMenu extends UserMenu {
 	render() {
 		return(
 		<ul id="navbarUserMenu" className="dropdown-content">
-			<li><Link to="/">Página principal</Link></li>
+			<li><a href="/">Página principal</a></li>
 			<li><Link to="/adm">Administración</Link></li>
 			<li className="divider"></li>
 			<li>
@@ -61,4 +79,4 @@ class InventoryUserMenu extends UserMenu {
 	}
 }
 
-export { HomeUserMenu, InventoryUserMenu }
+export { HomeUserMenu, AdminUserMenu, InventoryUserMenu }

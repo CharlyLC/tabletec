@@ -43,6 +43,7 @@ var clientConfig = {
 
 	entry: {
 		"tabletec": "./src/client/main-app.jsx",
+		"tabletec.admin": "./src/client/adm-app.jsx",
 	},
 
 	output: {

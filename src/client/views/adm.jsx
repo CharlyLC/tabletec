@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 
 import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
+import { AdminUserMenu } from '../components/user-menu.jsx';
 import {Footer} from '../components/footer.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
@@ -42,28 +43,6 @@ class ButtonAdmin extends React.Component {
 	}
 }
 
-class AdminUserMenu extends React.Component {
-	constructor(props) {
-        super(props);
-	}
-
-	onLogout() {
-		
-	}
-
-	render() {
-		return(
-		<ul id="navbarUserMenu" className="dropdown-content">
-			<li><Link to="/">Página principal</Link></li>
-			<li><Link to="/adm/inventarios">Inventarios</Link></li>
-			<li className="divider"></li>
-			<li>
-				<a onClick={this.onLogout.bind(this)}>Cerrar sesión</a>
-			</li>
-		</ul>)
-	}
-}
-
 /****************************************************************************************/
 
 class Admin extends Reflux.Component {
@@ -81,7 +60,7 @@ class Admin extends Reflux.Component {
 		super.componentWillMount();
 		AccountActions.authenticate((err, res)=>{
 			if(err){
-				this.props.history.push('/login');
+				window.location.replace('/login');
 			}else{
 				this.setState({signed: true});
 			}

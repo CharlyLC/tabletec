@@ -62,7 +62,7 @@ class AdmInventory extends Reflux.Component {
 		super.componentWillMount();
 		AccountActions.authenticate((err, res)=>{
 			if(err){
-				this.props.history.push('/login');
+				window.location.replace('/login');
 			}else{
 				InventoryActions.loadSideMenuItems();
 				this.setState({signed: true});

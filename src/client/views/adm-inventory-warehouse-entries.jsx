@@ -497,7 +497,7 @@ class AdmInventoryWarehouseEntries extends Reflux.Component {
 
 		AccountActions.authenticate((err, res)=>{
 			if(err){
-				this.props.history.push('/login');
+				window.location.replace('/login');
 			}else{
 				InventoryActions.loadSideMenuItems();
 				this.setState({signed: true});
