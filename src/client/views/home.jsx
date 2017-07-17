@@ -12,32 +12,10 @@ import { Link } from 'react-router-dom';
 
 import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
+import { HomeUserMenu } from '../components/user-menu.jsx';
+import {Footer} from '../components/footer.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
-
-/****************************************************************************************/
-
-class HomeUserMenu extends React.Component {
-	constructor(props) {
-        super(props);
-	}
-
-	onLogout() {
-		
-	}
-
-	render() {
-		return(
-		<ul id="navbarUserMenu" className="dropdown-content">
-			<li><Link to="/adm">Administración</Link></li>
-			<li><Link to="/adm/inventarios">Inventarios</Link></li>
-			<li className="divider"></li>
-			<li>
-				<a onClick={this.onLogout.bind(this)}>Cerrar sesión</a>
-			</li>
-		</ul>)
-	}
-}
 
 /****************************************************************************************/
 
@@ -61,7 +39,7 @@ class Home extends Reflux.Component {
 
 	render() {
 		return (
-		<div>
+		<div className="rs-body">
 			<header>
 				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
 					user={this.state.user} signin={this.state.signed} userMenuComponent={HomeUserMenu}/>
@@ -71,6 +49,7 @@ class Home extends Reflux.Component {
 					<img src="/images/tabletec-banner.png" alt="" className="responsive-img"/>
 				</div>
 			</main>
+			<Footer/>
 		</div>);
 	}
 }
