@@ -16,6 +16,8 @@ import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
 import { Button } from '../components/button.jsx';
+import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
+import ItemProperty from '../components/item-property.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
@@ -111,6 +113,95 @@ class WarehouseEntriesList extends Reflux.Component {
 	}
 }
 
+class WarehouseEntryViewer extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {}
+
+		this.store = WarehouseEntriesStore;
+		this.storeKeys = ['selectedItem', 'viewerStatus'];
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		if(this.props.entryCode){
+			WarehouseEntriesActions.findOne(this.props.entryCode);
+		}
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if(this.props.entryCode !== nextProps.entryCode){
+			if(nextProps.entryCode){
+				WarehouseEntriesActions.findOne(nextProps.entryCode);
+			}
+		}
+	}
+
+	render(){
+		var item = this.state.selectedItem;
+		switch(this.state.viewerStatus){
+		case 'ready': return item ? (
+			<SectionCard title="Entrada a almacén" iconName="store">
+				<h6 style={{fontWeight: 'bold', padding: '1rem'}}>{item.description}</h6>
+
+
+				<div className="row" style={{marginBottom: '0.5rem'}}>
+					<ItemProperty name="Tipo de Operación" value={item.tTransactionsTypeName} className="col s12 m6"/>
+					<ItemProperty name="Fecha de entrada" value={item.entryDate} className="col s12 m6"/>
+				</div>
+
+				<h6 style={{fontWeight: 'bold', padding: '1rem'}}>Información sobre los artículos</h6>
+				<Collapsible>
+					{
+						item.transactions ?
+						item.transactions.map(function(tran, i){
+							return (
+							<CollapsibleCard key={i} title={item.tTransactionsTypeName + ': ' + tran.business} iconName="view_stream">
+								{
+									tran.articles.map((article, ii)=>{
+										return (
+										<div key={ii} className="row" style={{marginBottom: '0.5rem'}}>
+											<div className="card grey lighten-2">
+       											<div className="card-content" style={{padding: '0.5rem'}}>
+													<h6 style={{fontWeight: 'bold', padding: '0.5rem'}}>{article.name}</h6>
+													<div className="row no-margin">
+														<ItemProperty name="Almacén" value={article.warehouseName} className="col s12"/>
+													</div>
+													<div className="row no-margin">
+														<ItemProperty name="Cantidad" value={article.quantity} className="col s4"/>
+														<ItemProperty name="Detalle" value={article.remark} className="col s8"/>
+													</div>
+												</div>
+											</div>
+										</div>)
+									})
+								}
+							</CollapsibleCard>)
+						}) : null
+					}
+				</Collapsible>
+			</SectionCard>) : (
+			<SectionCard title="Entrada a almacén" iconName="store">
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de entradas a almacén."/>
+				</div>
+			</SectionCard>);
+		case 'loading': return (
+			<SectionCard title="Cargando datos..." iconName="store">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+		case 'error': return (
+			<SectionCard title="Entrada a almacén" iconName="store">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos de la entrada"/>
+			</SectionCard>);
+		}
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryWarehouseEntries extends Reflux.Component {
@@ -156,6 +247,8 @@ class AdmInventoryWarehouseEntries extends Reflux.Component {
 						<SectionView className="col s12 m6 l5"  >
 							<Switch match={action}>
 								<WarehouseEntriesWelcome path="welcome"/>
+								<WarehouseEntryViewer path="ver" url={this.url} history={this.props.history}
+									entryCode={this.props.match.params.entry}/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">

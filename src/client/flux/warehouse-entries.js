@@ -55,6 +55,23 @@ class WarehouseEntriesStore extends Reflux.Store {
 		}
 	}
 
+	onFindOne(entryCode) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({viewerStatus: 'loading'});
+			api.inventory.warehouses.entries.findOne({company: this.state.company, entryCode}, auth, (err, res)=>{
+				if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					res.entry.tTransactionsTypeName = this.translateTypeName(res.entry.transactionsTypeName);
+					this.setState({selectedItem: res.entry, viewerStatus: 'ready'});
+				}
+			});	
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
+
 
 
 	translateTypeName(value) {
