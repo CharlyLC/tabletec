@@ -103,6 +103,16 @@ var warehouses = {
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+
+
+	entries: {
+		findAll: function(data, authorization, callback) {
+			request
+				.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes-entradas/listar')
+				.set('authorization', authorization)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
+	}
 }
 
 var providers = {

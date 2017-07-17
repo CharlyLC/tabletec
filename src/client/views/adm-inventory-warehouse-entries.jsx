@@ -16,12 +16,15 @@ import { InventoryUserMenu } from '../components/user-menu.jsx';
 
 import Alert from '../components/alert.jsx';
 import { Button } from '../components/button.jsx';
+import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
 import { Switch, Case } from '../components/switch.jsx';
+import Table from '../components/table.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
+import { WarehouseEntriesActions, WarehouseEntriesStore } from '../flux/warehouse-entries';
 
 /****************************************************************************************/
 
@@ -37,6 +40,74 @@ class WarehouseEntriesWelcome extends React.Component {
 				<Alert type="info" text="Bienvenido a la página de administracion de entradas a almacenes."/>
 			</div>
 		</SectionCard>);
+	}
+}
+
+class WarehouseEntriesList extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {}
+
+		this.store = WarehouseEntriesStore;
+		this.storeKeys = ['list', 'listStatus'];
+
+		this.dropdowOptions = [
+			{
+				text:'Registrar nueva entrada',
+				select: this.onDropdowOptionInsert.bind(this)
+			},
+			{
+				text: 'Actualizar',
+				select: this.onDropdowOptionUpdate.bind(this)
+			}
+		];
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+		WarehouseEntriesActions.findAll();
+	}
+
+	onSelectItem(item) {
+		this.props.history.push(this.props.url + '/ver/' + item.code);
+	}
+
+	onDropdowOptionInsert() {
+		this.props.history.push(this.props.url + '/insertar/' + Tools.makeid(32));
+	}
+
+	onDropdowOptionUpdate() {
+		WarehouseEntriesActions.findAll();
+	}
+
+	render() {
+		return(
+		<SectionCard title="Lista de entradas" iconName="view_list" menuID="warehouseEntriesList" menuItems={this.dropdowOptions}>
+
+			<div style={{padding: '0rem 1rem'}}>
+				<span>
+					Lista de todas las entradas registradas en los almacenes.
+				</span>
+			</div>
+
+			<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+				<Switch match={this.state.listStatus}>
+					<Case path="loading" className="center">
+						<div className="row">
+							<Progress type="indeterminate"/>
+						</div>
+					</Case>
+					<Case path="ready">
+						<Table columns={this.state.list.columns} rows={this.state.list.rows} filterBy="description"
+							onSelectRow={this.onSelectItem.bind(this)}/>
+					</Case>
+					<Case path="error">
+						<Alert type="error" text="ERROR: No se pudo cargar la lista de entradas a almacenes"/>
+					</Case>
+				</Switch>
+			</div>
+		</SectionCard>)
 	}
 }
 
@@ -88,7 +159,7 @@ class AdmInventoryWarehouseEntries extends Reflux.Component {
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
-							
+							<WarehouseEntriesList url={this.url} history={this.props.history}/>
 						</SectionView>
 					</div> : null
 				}
