@@ -118,6 +118,13 @@ var warehouses = {
 				.set('authorization', authorization)
 				.end((err, res)=>{ stdResCallback(err, res, callback) });
 		},
+		insertOne: function(data, authorization, callback) {
+			request
+				.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes-entradas/insertar')
+				.set('authorization', authorization)
+				.send(data)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
 	},
 	outlets: {
 		findAll: function(data, authorization, callback) {
@@ -190,6 +197,19 @@ var purchases = {
 			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+
+	findAllDelivered: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/compras/listar-entregados')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	findOneArticles: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/compras/ver-articulos/' + data.purchase)
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
 }
 
 var transfers = {
@@ -217,6 +237,19 @@ var transfers = {
 			.put(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/transferencias/cambiar-estado')
 			.set('authorization', authorization)
 			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+
+	findAllWithdrawn: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/transferencias/listar-retirados')
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	findOneArticles: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/transferencias/ver-articulos/' + data.transfer)
+			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
 }

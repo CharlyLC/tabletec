@@ -71,7 +71,63 @@ class WarehouseEntriesStore extends Reflux.Store {
 			this.setState({viewerStatus: 'error'});
 		}
 	}
+	
+	onInsertOne(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		data.company = this.state.company;
+		if(auth){
+			api.inventory.warehouses.entries.insertOne(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
 
+
+
+	findAllWarehouses(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.warehouses.findAll({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	findAllDeliveredPurchases(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.purchases.findAllDelivered({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	findAllPurchaseArticles(purchaseCode, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.purchases.findOneArticles({company: this.state.company, purchase: purchaseCode}, auth, callback);
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
+
+	findAllWithdrawnTransfers(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.transfers.findAllWithdrawn({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	findAllTransferArticles(transferCode, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.transfers.findOneArticles({company: this.state.company, transfer: transferCode}, auth, callback);
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
 
 
 	translateTypeName(value) {
