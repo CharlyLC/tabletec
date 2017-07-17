@@ -1,4 +1,4 @@
-# retailshop
+# tabletec
 
 ## Introduction
 An nodejs application for TableTec company.
