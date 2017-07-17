@@ -17,16 +17,23 @@ import { InventoryUserMenu } from '../components/user-menu.jsx';
 import Alert from '../components/alert.jsx';
 import { Button } from '../components/button.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
+import { DataImporter, TransactionMutator } from '../components/data-importer.jsx';
+import Form from '../components/form.jsx';
+import Input from '../components/input.jsx';
 import ItemProperty from '../components/item-property.jsx';
+import MessageModal from '../components/message-modal.jsx';
 import Progress from'../components/progress.jsx';
 import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
+import Select from '../components/select.jsx';
 import { Switch, Case } from '../components/switch.jsx';
 import Table from '../components/table.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { WarehouseOutletsActions, WarehouseOutletsStore } from '../flux/warehouse-outlets';
+
+import Tools from '../tools';
 
 /****************************************************************************************/
 
@@ -77,7 +84,7 @@ class WarehouseOutletsList extends Reflux.Component {
 	}
 
 	onDropdowOptionInsert() {
-		this.props.history.push(this.props.url + '/insertar/' + Randomstring.generate());
+		this.props.history.push(this.props.url + '/insertar/' + Tools.makeid(32));
 	}
 
 	onDropdowOptionUpdate() {
@@ -203,6 +210,143 @@ class WarehouseOutletViewer extends Reflux.Component {
 	}
 }
 
+class WarehouseOutletInsert extends Reflux.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			transactType: 'transfers',
+			transactTypeOptions: [{name:'Transferencias',value:'transfers'},{name:'Otros',value:'custom'}],
+			warehouses: [],
+		}
+
+		this._formValidationRules = {
+		}
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		WarehouseOutletsActions.findAllWarehouses((err, res)=>{
+			if(res && res.warehouses){ this.setState({warehouses: res.warehouses.rows}); }
+		});
+	}
+
+	componentDidMount() {
+		Materialize.updateTextFields();
+	}
+
+	onRequireTransfers(callback) {
+		WarehouseOutletsActions.findAllApprovedTransfers((err, res)=>{
+			if(res){ callback(null, {data: res.transfers}); }else{ callback(err); }
+		});
+	}
+
+	onRequireTransferArticles(transfer, callback) {
+		WarehouseOutletsActions.findAllTransferArticles(transfer.code, (err, res)=>{
+			if(err){
+				callback(err);
+			}else{
+				transfer.typeName = 'Transferencia',
+				transfer.articles = res.transferArticles;
+				callback(null, res.transferArticles);
+			}
+		});
+	}
+
+	onDataImporterChange() {
+		Materialize.updateTextFields();
+		this.refs.insertForm.revalidate();
+	}
+
+	onChangeTransactType(value) {
+		this.setState({transactType: value});
+
+		if(value === 'custom'){ this.refs.submitBtn.disable(); }
+		else{ this.refs.submitBtn.enable(); }
+	}
+
+	onFormSubmit(form) {
+		let selectedTransactions = this.refs.transactions.getSelectedTransactions();
+
+		let data = {
+			transactionsTypeName: this.state.transactType,
+			description: this.refs.outletDescription.value(),
+			outletDate: this.refs.outletDate.value(),
+			transactions: selectedTransactions.map(tran=>{
+				return {
+					code: tran.code,
+					articles: tran.articles.map(article=>{
+						return {
+							code: article.code,
+							warehouseCode: (this.state.transactType === 'transfers') ? tran.originWarehouseCode : article.op.warehouseCode,
+							quantity: article.op.quantity,
+							remark: article.op.remark
+						}
+					})
+				}
+			})
+		}
+
+		this.refs.messageModal.show('sending');
+		WarehouseOutletsActions.insertOne(data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.show('success_save');
+			}
+		});
+	}
+
+	render() {
+		let transfersColumns = [
+			{ name: 'business', text: 'Asunto', visible: true },
+			{ name: 'originWarehouseName', text: 'Almacen origen', visible: true },
+			{ name: 'destinationWarehouseName', text: 'Almacén destino', visible: true }
+		];
+
+		return(
+		<SectionCard title="Insertar nueva salida de almacén" iconName="library_books">
+			<div className="row">
+				<h6 style={{padding: '0rem 1rem'}}>Introduzca los datos para la nueva salida de almacén.</h6>
+			</div>
+			<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
+				<h6 style={{fontWeight: 'bold', padding: '0rem 0.8rem'}}>Detalles de la salida</h6>
+				<div className="row no-margin">
+					<Input ref="outletDescription" name="outletDescription" type="text" className="col s12"
+						label="Descripción" placeholder="Descripción" required={true}/>
+				</div>
+				<div className="row no-margin">
+					<Input ref="outletDate" name="outletDate" type="date" className="col s12"
+						label="Fecha de realización de la salida" placeholder="Fecha de realización de la salida"/>
+				</div>
+				<div className="row no-margin">
+					<Select ref="transactType" className="col s12" nameField="name" valueField="value"
+						options={this.state.transactTypeOptions}
+						onChange={this.onChangeTransactType.bind(this)} label="Transacción" placeholder="Seleccione el tipo de operación"/>
+				</div>
+				<Switch match={this.state.transactType}>
+					<Case path="transfers">
+						<DataImporter ref="transactions" columns={transfersColumns} dataComponent={TransactionMutator} group={true} filterBy="business"
+							loadData={this.onRequireTransfers.bind(this)} loadDataSubitem={this.onRequireTransferArticles.bind(this)}
+							onChange={this.onDataImporterChange.bind(this)}/>
+					</Case>
+					<Case path="custom">
+						<div>(Esta opción no está habilitada)</div>
+					</Case>
+				</Switch>
+				<div>
+					<h6 style={{fontWeight: 'bold', padding: '0rem 0.8rem'}}>Finalizar</h6>
+					<div className="row no-margin" style={{padding: '0rem 0.5rem 1rem'}}>
+						<Button ref="submitBtn" className="col s12 red darken-2" type="submit" text="Guardar datos" iconName="send"/>
+					</div>
+				</div>
+			</Form>
+			<MessageModal ref="messageModal"/>
+		</SectionCard>)
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryWarehouseOutlets extends Reflux.Component {
@@ -250,6 +394,7 @@ class AdmInventoryWarehouseOutlets extends Reflux.Component {
 								<WarehouseOutletsWelcome path="welcome"/>
 								<WarehouseOutletViewer path="ver" url={this.url} history={this.props.history}
 									outletCode={this.props.match.params.outlet}/>
+								<WarehouseOutletInsert path="insertar"/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
