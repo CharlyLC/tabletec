@@ -54,6 +54,23 @@ class WarehouseOutletsStore extends Reflux.Store {
 		}
 	}
 
+	findOne(outletCode) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			this.setState({viewerStatus: 'loading'});
+			api.inventory.warehouses.outlets.findOne({company: this.state.company, outletCode}, auth, (err, res)=>{
+				if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					res.outlet.tTransactionsTypeName = this.translateTypeName(res.outlet.transactionsTypeName);
+					this.setState({selectedItem: res.outlet, viewerStatus: 'ready'});
+				}
+			});
+		}else{
+			this.setState({viewerStatus: 'error'});
+		}
+	}
+
 
 	translateTypeName(value) {
 		switch(value) {
