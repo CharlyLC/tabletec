@@ -13,6 +13,7 @@ import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
 import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
+import {Footer} from '../components/footer.jsx';
 
 import Alert from '../components/alert.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
@@ -369,8 +370,8 @@ class AdmInventoryWarehouses extends Reflux.Component {
 
 	render() {
 		let action = this.props.match.params.action ? this.props.match.params.action : 'welcome';
-		return this.state.user ? (
-		<div>
+		return (
+		<div className="rs-body">
 			<header>
 				<Sidenav user={this.state.user} items={this.state.sideMenuItems}/>
 				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
@@ -378,21 +379,25 @@ class AdmInventoryWarehouses extends Reflux.Component {
 					user={this.state.user} signin={this.state.signed} userMenuComponent={InventoryUserMenu}/>
 			</header>
 			<main>
-				<div className="row no-margin" style={{backgroundColor: '#eeeeee'}}>
-					<SectionView className="col s12 m6 l5"  >
-						<Switch match={action}>
-							<WarehousesWelcome path="welcome"/>
-							<WarehousesViewer path="ver" url={this.url} history={this.props.history}
-								warehouseCode={this.props.match.params.warehouse}/>
-							<WarehousesInsert path="insertar"/>
-						</Switch>
-					</SectionView>
-					<SectionView className="col s12 m6 l7">
-						<WarehousesList url={this.url} history={this.props.history}/>
-					</SectionView>
-				</div>
+				{
+					this.state.user ?
+					<div className="row no-margin" style={{backgroundColor: '#eeeeee'}}>
+						<SectionView className="col s12 m6 l5"  >
+							<Switch match={action}>
+								<WarehousesWelcome path="welcome"/>
+								<WarehousesViewer path="ver" url={this.url} history={this.props.history}
+									warehouseCode={this.props.match.params.warehouse}/>
+								<WarehousesInsert path="insertar"/>
+							</Switch>
+						</SectionView>
+						<SectionView className="col s12 m6 l7">
+							<WarehousesList url={this.url} history={this.props.history}/>
+						</SectionView>
+					</div> : null
+				}
 			</main>
-		</div>) : null;
+			<Footer/>
+		</div>);
 	}
 }
 

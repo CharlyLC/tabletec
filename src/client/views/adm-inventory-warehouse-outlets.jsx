@@ -13,6 +13,7 @@ import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
 import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
+import {Footer} from '../components/footer.jsx';
 
 import Alert from '../components/alert.jsx';
 import { Button } from '../components/button.jsx';
@@ -378,7 +379,7 @@ class AdmInventoryWarehouseOutlets extends Reflux.Component {
 	render() {
 		let action = this.props.match.params.action ? this.props.match.params.action : 'welcome';
 		return (
-		<div>
+		<div className="rs-body">
 			<header>
 				<Sidenav user={this.state.user} items={this.state.sideMenuItems}/>
 				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
@@ -403,6 +404,7 @@ class AdmInventoryWarehouseOutlets extends Reflux.Component {
 					</div> : null
 				}
 			</main>
+			<Footer/>
 		</div>);
 	}
 }

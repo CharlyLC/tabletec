@@ -13,6 +13,7 @@ import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
 import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
+import {Footer} from '../components/footer.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
@@ -70,8 +71,8 @@ class AdmInventory extends Reflux.Component {
 	}
 
 	render() {
-		return this.state.user ? (
-		<div>
+		return (
+		<div className="rs-body">
 			<header>
 				<Sidenav user={this.state.user} items={this.state.sideMenuItems}/>
 				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
@@ -79,17 +80,23 @@ class AdmInventory extends Reflux.Component {
 					user={this.state.user} signin={this.state.signed} userMenuComponent={InventoryUserMenu}/>
 			</header>
 			<main>
-				<div className="row">
-					<h5 className="center-align" style={{ textShadow:' 1px 1px 1px #999'}}><b>Inventarios</b></h5>
-				</div>
-				<div className="row">
-					<InfoCard iconName="assessment" text1="titulo" text2="500" text3="xx" themeColor={'grey darken-1'}/>
-					<InfoCard iconName="assessment" text1="titulo" text2="200" text3="xx" themeColor={'grey darken-1'}/>
-					<InfoCard iconName="assessment" text1="titulo" text2="50" text3="xx" themeColor={'grey darken-1'}/>
-					<InfoCard iconName="assessment" text1="titulo" text2="1000" text3="xx" themeColor={'grey darken-1'}/>
-				</div>
+				{
+					this.state.user ?
+					<div>
+						<div className="row">
+							<h5 className="center-align" style={{ textShadow:' 1px 1px 1px #999'}}><b>Inventarios</b></h5>
+						</div>
+						<div className="row">
+							<InfoCard iconName="assessment" text1="titulo" text2="500" text3="xx" themeColor={'grey darken-1'}/>
+							<InfoCard iconName="assessment" text1="titulo" text2="200" text3="xx" themeColor={'grey darken-1'}/>
+							<InfoCard iconName="assessment" text1="titulo" text2="50" text3="xx" themeColor={'grey darken-1'}/>
+							<InfoCard iconName="assessment" text1="titulo" text2="1000" text3="xx" themeColor={'grey darken-1'}/>
+						</div>
+					</div>: null
+				}
 			</main>
-		</div>) : null;
+			<Footer/>
+		</div>);
 	}
 }
 

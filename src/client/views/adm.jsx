@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 
 import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
+import {Footer} from '../components/footer.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 
@@ -88,26 +89,30 @@ class Admin extends Reflux.Component {
 	}
 
 	render() {
-		return this.state.user ? (
-		<div>
+		return (
+		<div className="rs-body">
 			<header>
 				<Navbar brandIconComponent={BrandIcon} brandLogoComponent={BrandLogo}
 					user={this.state.user} signin={this.state.signed} userMenuComponent={AdminUserMenu}/>
 			</header>
 			<main>
-				<div className="container">
-					<div className="row">
-						<h5 className="center-align" style={{ textShadow:' 1px 1px 1px #999'}}><b>Menu Principal</b></h5>
-					</div>
-					<div className="row"> 
-						<ButtonAdmin text="Inventarios" to={'/adm/inventarios'} iconName="work"/>	
-						<ButtonAdmin text="Compras" to="" iconName="language"/>
-						<ButtonAdmin text="Ventas" to="" iconName="shopping_cart"/>
-						<ButtonAdmin text="Administracion" to="" iconName="settings"/>
-					</div>
-				</div>
+				{
+					this.state.user ?
+					<div className="container">
+						<div className="row">
+							<h5 className="center-align" style={{ textShadow:' 1px 1px 1px #999'}}><b>Menu Principal</b></h5>
+						</div>
+						<div className="row"> 
+							<ButtonAdmin text="Inventarios" to={'/adm/inventarios'} iconName="work"/>	
+							<ButtonAdmin text="Compras" to="" iconName="language"/>
+							<ButtonAdmin text="Ventas" to="" iconName="shopping_cart"/>
+							<ButtonAdmin text="Administracion" to="" iconName="settings"/>
+						</div>
+					</div> : null
+				}
 			</main>
-		</div>) : null;
+			<Footer/>
+		</div>);
 	}
 }
 
