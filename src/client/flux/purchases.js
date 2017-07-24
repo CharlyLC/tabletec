@@ -15,7 +15,8 @@ import config from '../config';
 
 var PurchasesActions = Reflux.createActions([
 	'findAll', 'findOne', 'insertOne' , 'updateOneStatus',
-	'findAllArticles', 'findAllProviders'
+	'findAllArticles', 'findAllProviders',
+	'getDatedReport', 'getDetailReport'
 ]);
 
 class PurchasesStore extends Reflux.Store {
@@ -112,6 +113,26 @@ class PurchasesStore extends Reflux.Store {
 		let auth = localStorage.getItem('authorization');
 		if(auth){
 			api.inventory.articles.findAll({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+
+	getDatedReport(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			data.company = this.state.company;
+			api.inventory.reports.purchases.getDatedReport(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	getDetailReport(purchaseCode, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.reports.purchases.getDetailReport({company: this.state.company, purchase: purchaseCode}, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}

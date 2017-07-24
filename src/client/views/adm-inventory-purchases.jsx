@@ -35,6 +35,7 @@ import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { PurchasesActions, PurchasesStore } from '../flux/purchases';
 
 import Tools from '../tools';
+import {PretyDate} from '../tools/prety-date';
 
 /****************************************************************************************/
 
@@ -153,6 +154,10 @@ class PurchasesList extends Reflux.Component {
 				select: this.onDropdowOptionInsert.bind(this)
 			},
 			{
+				text:'Crear reporte por fechas',
+				select: this.onDropdowOptionDatedReport.bind(this)
+			},
+			{
 				text: 'Actualizar',
 				select: this.onDropdowOptionUpdate.bind(this)
 			}
@@ -170,6 +175,10 @@ class PurchasesList extends Reflux.Component {
 
 	onDropdowOptionInsert() {
 		this.props.history.push(this.props.url + '/insertar/' + Tools.makeid(32));
+	}
+
+	onDropdowOptionDatedReport() {
+		this.props.history.push(this.props.url + '/reporte-fechas/' + Tools.makeid(32));
 	}
 
 	onDropdowOptionUpdate() {
@@ -219,6 +228,10 @@ class PurchaseViewer extends Reflux.Component {
 			{
 				text: 'Cambiar estado',
 				select: this.onDropdowOptionUpdateStatus.bind(this)
+			},
+			{
+				text: 'Crear reporte',
+				select: this.onDropdowOptionDetailReport.bind(this)
 			}
 		];
 	}
@@ -241,6 +254,18 @@ class PurchaseViewer extends Reflux.Component {
 
 	onDropdowOptionUpdateStatus() {
 		this.props.history.push(this.props.url + '/cambiar-estado/' + this.props.purchaseCode);
+	}
+
+	onDropdowOptionDetailReport() {
+		this.refs.messageModal.show('sending');
+		PurchasesActions.getDetailReport(this.props.purchaseCode, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.close();
+				window.open('data:application/pdf;base64,'+res.pdf);
+			}
+		});
 	}
 
 	render() {
@@ -298,6 +323,7 @@ class PurchaseViewer extends Reflux.Component {
 						}) : null
 					}
 				</Collapsible>
+				<MessageModal ref="messageModal"/>
 			</SectionCard>) : (
 			<SectionCard title="Orden de compra" iconName="shopping_cart">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
@@ -635,6 +661,66 @@ class PurchaseUpdateStatus extends Reflux.Component {
 	}
 }
 
+class PurchasesDatedReport extends Reflux.Component {
+	constructor(props){
+		super(props);
+	}
+
+	componentDidMount() {
+		Materialize.updateTextFields();
+
+		let date1 = PretyDate.formated();
+		this.refs.startDate.value(date1);
+		this.refs.endDate.value(date1);
+	}
+
+	onFormSubmit(form) {
+		let data = {
+			startDate: this.refs.startDate.value(),
+			endDate: this.refs.endDate.value()
+		}
+		var d1 = PretyDate.parse(data.startDate);
+		var d2 = PretyDate.parse(data.endDate);
+
+		if(d1 > d2) {
+			this.refs.messageModal.show('save_error', 'No permitido: la fecha de inicio debe ser menor a la fecha fin.');
+		}else{
+			this.refs.messageModal.show('sending');
+			PurchasesActions.getDatedReport(data, (err, res)=>{
+				if(err){
+					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+				}else{
+					this.refs.messageModal.close();
+					window.open('data:application/pdf;base64,'+res.pdf);
+				}
+			});
+		}
+	}
+
+	render() {
+		return (
+		<SectionCard title="Crear reporte de compras" iconName="shopping_cart">
+			<div style={{padding: '0rem 1rem'}}>
+				<span>Seleccione las fechas para el reporte de compras.</span>
+			</div>
+			<Form ref="datedReportForm" onSubmit={this.onFormSubmit.bind(this)}>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+					<Input ref="startDate" name="startDate" type="date" className="col s12"
+						label="Fecha inicio" placeholder="Seleccione fecha inicio"/>
+				</div>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+					<Input ref="endDate" name="endDate" type="date" className="col s12"
+						label="Fecha fin" placeholder="Seleccione fecha fin"/>
+				</div>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem 1rem 0.8rem'}}>
+					<h6 style={{fontWeight: 'bold'}}>Crear</h6>
+					<Button ref="submitBtn" className="col s12 red darken-2" text="Crear reporte" iconName="send" type="submit"/>
+				</div>
+			</Form>
+			<MessageModal ref="messageModal"/>
+		</SectionCard>)
+	}
+}
 /****************************************************************************************/
 
 class AdmInventoryPurchases extends Reflux.Component {
@@ -684,6 +770,7 @@ class AdmInventoryPurchases extends Reflux.Component {
 									purchaseCode={this.props.match.params.purchase}/>
 								<PurchaseInsert path="insertar"/>
 								<PurchaseUpdateStatus path="cambiar-estado" purchaseCode={this.props.match.params.purchase}/>
+								<PurchasesDatedReport path="reporte-fechas"/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">

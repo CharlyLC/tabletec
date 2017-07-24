@@ -132,7 +132,7 @@ class WarehousesViewer extends Reflux.Component {
 		this.dropdowOptions = [
 			{
 				text: 'Reporte de existencias',
-				select: this.onDropdowOptionReport1.bind(this)
+				select: this.onDropdowOptionStockReport.bind(this)
 			}
 		];
 	}
@@ -153,11 +153,13 @@ class WarehousesViewer extends Reflux.Component {
 		}
 	}
 
-	onDropdowOptionReport1() {
+	onDropdowOptionStockReport() {
+		this.refs.messageModal.show('sending');
 		WarehousesActions.getStockReport(this.props.warehouseCode, (err, res)=>{
 			if(err){
-
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 			}else{
+				this.refs.messageModal.close();
 				window.open('data:application/pdf;base64,'+res.pdf);
 			}
 		});		
@@ -200,6 +202,7 @@ class WarehousesViewer extends Reflux.Component {
 						</div>
 					</CollapsibleCard>
 				</Collapsible>
+				<MessageModal ref="messageModal"/>
 			</SectionCard>) : (
 			<SectionCard title="Datos de almacen" iconName="store">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>

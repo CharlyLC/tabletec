@@ -15,7 +15,8 @@ import config from '../config';
 
 var ArticlesActions = Reflux.createActions([
 	'findAll', 'findOne', 'insertOne',
-	'findAllBrands', 'findAllCategories'
+	'findAllBrands', 'findAllCategories',
+	'getStockReport'
 ]);
 
 class ArticlesStore extends Reflux.Store {
@@ -90,6 +91,15 @@ class ArticlesStore extends Reflux.Store {
 		let auth = localStorage.getItem('authorization');
 		if(auth){
 			api.inventory.articles.findAllCategories({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	getStockReport(articleCode, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.reports.articles.getStockReport({company: this.state.company, article: articleCode}, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}

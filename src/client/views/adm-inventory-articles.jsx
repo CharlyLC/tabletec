@@ -164,7 +164,12 @@ class ArticleViewer extends Reflux.Component {
 		this.store = ArticlesStore;
 		this.storeKeys = ['selectedItem', 'viewerStatus'];
 
-		this.dropdowOptions = [];
+		this.dropdowOptions = [
+			{
+				text: 'Reporte de existencias',
+				select: this.onDropdowOptionStockReport.bind(this)
+			}
+		];
     }
 
 	componentWillMount() {
@@ -181,6 +186,18 @@ class ArticleViewer extends Reflux.Component {
 				ArticlesActions.findOne(nextProps.articleCode);
 			}
 		}
+	}
+
+	onDropdowOptionStockReport() {
+		this.refs.messageModal.show('sending');
+		ArticlesActions.getStockReport(this.props.articleCode, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.close();
+				window.open('data:application/pdf;base64,'+res.pdf);
+			}
+		});
 	}
 
 	render() {
@@ -217,6 +234,7 @@ class ArticleViewer extends Reflux.Component {
 					<PropertySingle name="Fecha de creación" value={this.state.selectedItem.creationDate}/>
 					<PropertySingle name="Fecha de modificación" value={this.state.selectedItem.modifiedDate}/>
 				</div>
+				<MessageModal ref="messageModal"/>
 			</SectionCard>) :
 			(<SectionCard title="Vista de artículo" iconName="library_books">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>

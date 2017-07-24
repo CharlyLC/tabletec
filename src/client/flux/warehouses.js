@@ -91,7 +91,7 @@ class WarehousesStore extends Reflux.Store {
 	getStockReport(warehouseCode, callback) {
 		let auth = localStorage.getItem('authorization');
 		if(auth){
-			api.inventory.warehouses.getStockReport({company: this.state.company, warehouse: warehouseCode}, auth, callback);
+			api.inventory.reports.warehouses.getStockReport({company: this.state.company, warehouse: warehouseCode}, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}

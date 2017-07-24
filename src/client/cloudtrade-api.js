@@ -267,12 +267,63 @@ var transfers = {
 	},
 }
 
+var reports = {
+	articles: {
+		getStockReport: function(data, authorization, callback) {
+			request
+				.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/articulos/stock/' + data.article)
+				.set('authorization', authorization)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
+	},
+	warehouses: {
+		getStockReport: function(data, authorization, callback) {
+			request
+				.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/almacenes/stock/' + data.warehouse)
+				.set('authorization', authorization)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
+	},
+	transfers: {
+		getDatedReport: function(data, authorization, callback) {
+			request
+				.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/transferencias/por-fecha')
+				.set('authorization', authorization)
+				.send(data)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
+		getDetailReport: function(data, authorization, callback) {
+			request
+				.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/transferencias/detalle/' + data.transfer)
+				.set('authorization', authorization)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
+	},
+	purchases: {
+		getDatedReport: function(data, authorization, callback) {
+			request
+				.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/compras/por-fecha')
+				.set('authorization', authorization)
+				.send(data)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
+		getDetailReport: function(data, authorization, callback) {
+			request
+				.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/compras/detalle/' + data.purchase)
+				.set('authorization', authorization)
+				.end((err, res)=>{ stdResCallback(err, res, callback) });
+		},
+	}
+}
+
 var inventory = {
 	articles: articles,
 	warehouses: warehouses,
 	providers: providers,
 	purchases: purchases,
 	transfers: transfers,
+
+	reports: reports
 }
 
 module.exports = {

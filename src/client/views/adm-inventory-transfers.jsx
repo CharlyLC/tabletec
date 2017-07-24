@@ -36,6 +36,7 @@ import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { TransfersActions, TransfersStore } from '../flux/transfers';
 
 import Tools from '../tools';
+import {PretyDate} from '../tools/prety-date';
 
 /****************************************************************************************/
 
@@ -153,6 +154,10 @@ class TransfersList extends Reflux.Component {
 				select: this.onDropdowOptionInsert.bind(this)
 			},
 			{
+				text:'Crear reporte por fechas',
+				select: this.onDropdowOptionDatedReport.bind(this)
+			},
+			{
 				text: 'Actualizar',
 				select: this.onDropdowOptionUpdate.bind(this)
 			}
@@ -170,6 +175,10 @@ class TransfersList extends Reflux.Component {
 
 	onDropdowOptionInsert() {
 		this.props.history.push(this.props.url + '/insertar/' + Tools.makeid(32));
+	}
+
+	onDropdowOptionDatedReport() {
+		this.props.history.push(this.props.url + '/reporte-fechas/' + Tools.makeid(32));
 	}
 
 	onDropdowOptionUpdate() {
@@ -218,6 +227,10 @@ class TransferViewer extends Reflux.Component {
 			{
 				text: 'Cambiar estado',
 				select: this.onDropdowOptionUpdateStatus.bind(this)
+			},
+			{
+				text: 'Crear reporte',
+				select: this.onDropdowOptionDetailReport.bind(this)
 			}
 		];
 	}
@@ -242,6 +255,18 @@ class TransferViewer extends Reflux.Component {
 		this.props.history.push(this.props.url + '/cambiar-estado/' + this.props.transferCode);
 	}
 
+	onDropdowOptionDetailReport() {
+		this.refs.messageModal.show('sending');
+		TransfersActions.getDetailReport(this.props.transferCode, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.close();
+				window.open('data:application/pdf;base64,'+res.pdf);
+			}
+		});
+	}
+
 	render() {
 		let item = this.state.selectedItem;
 		switch(this.state.viewerStatus){
@@ -250,12 +275,17 @@ class TransferViewer extends Reflux.Component {
 				<Collapsible defaultActiveIndex={0}>
 					<CollapsibleCard title="Datos de la compra" iconName="assignment_turned_in">
 						<div className="row" style={{marginBottom: '0.5rem'}}>
-							<ItemProperty name="Asunto" value={item.business} className="col s12 m6"/>
+							<ItemProperty name="Asunto" value={item.business} className="col s12"/>
+						</div>
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Número" value={item.seq} className="col s12 m6"/>
 							<ItemProperty name="Estado" value={item.status} className="col s12 m6"/>
 						</div>
 						<div className="row" style={{marginBottom: '0.5rem'}}>
-							<ItemProperty name="Almacén origen" value={item.originWarehouse.name} className="col s12 m6"/>
-							<ItemProperty name="Almacén destino" value={item.destinationWarehouse.name} className="col s12 m6"/>
+							<ItemProperty name="Almacén origen" value={item.originWarehouse.name} className="col s12"/>
+						</div>
+						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="Almacén destino" value={item.destinationWarehouse.name} className="col s12"/>
 						</div>
 						<div className="row" style={{marginBottom: '0.5rem'}}>
 							<ItemProperty name="Descripción" value={item.description} className="col s12"/>
@@ -280,6 +310,7 @@ class TransferViewer extends Reflux.Component {
 						}) : null
 					}
 				</Collapsible>
+				<MessageModal ref="messageModal"/>
 			</SectionCard>) : (
 			<SectionCard title="Orden de transferencia" iconName="swap_horiz">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
@@ -556,6 +587,67 @@ class TransferUpdateStatus extends Reflux.Component {
 	}
 }
 
+class TransfersDatedReport extends Reflux.Component {
+	constructor(props){
+		super(props);
+	}
+
+	componentDidMount() {
+		Materialize.updateTextFields();
+
+		let date1 = PretyDate.formated();
+		this.refs.startDate.value(date1);
+		this.refs.endDate.value(date1);
+	}
+
+	onFormSubmit(form) {
+		let data = {
+			startDate: this.refs.startDate.value(),
+			endDate: this.refs.endDate.value()
+		}
+		var d1 = PretyDate.parse(data.startDate);
+		var d2 = PretyDate.parse(data.endDate);
+
+		if(d1 > d2) {
+			this.refs.messageModal.show('save_error', 'No permitido: la fecha de inicio debe ser menor a la fecha fin.');
+		}else{
+			this.refs.messageModal.show('sending');
+			TransfersActions.getDatedReport(data, (err, res)=>{
+				if(err){
+					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+				}else{
+					this.refs.messageModal.close();
+					window.open('data:application/pdf;base64,'+res.pdf);
+				}
+			});
+		}
+	}
+
+	render() {
+		return (
+		<SectionCard title="Crear reporte de transferencias" iconName="swap_horiz">
+			<div style={{padding: '0rem 1rem'}}>
+				<span>Seleccione las fechas para el reporte de transferencias.</span>
+			</div>
+			<Form ref="datedReportForm" onSubmit={this.onFormSubmit.bind(this)}>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+					<Input ref="startDate" name="startDate" type="date" className="col s12"
+						label="Fecha inicio" placeholder="Seleccione fecha inicio"/>
+				</div>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+					<Input ref="endDate" name="endDate" type="date" className="col s12"
+						label="Fecha fin" placeholder="Seleccione fecha fin"/>
+				</div>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem 1rem 0.8rem'}}>
+					<h6 style={{fontWeight: 'bold'}}>Crear</h6>
+					<Button ref="submitBtn" className="col s12 red darken-2" text="Crear reporte" iconName="send" type="submit"/>
+				</div>
+			</Form>
+			<MessageModal ref="messageModal"/>
+		</SectionCard>)
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryTransfers extends Reflux.Component {
@@ -605,6 +697,7 @@ class AdmInventoryTransfers extends Reflux.Component {
 									transferCode={this.props.match.params.transfer}/>
 								<TransferInsert path="insertar"/>
 								<TransferUpdateStatus path="cambiar-estado" transferCode={this.props.match.params.transfer}/>
+								<TransfersDatedReport path="reporte-fechas"/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
