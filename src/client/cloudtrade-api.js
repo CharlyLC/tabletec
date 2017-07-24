@@ -57,6 +57,13 @@ var articles = {
 			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
+	updateOne: function(data, authorization, callback) {
+		request
+			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/editar')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
 	findAllBrands: function(data, authorization, callback) {
 		request
 			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/listar-marcas')

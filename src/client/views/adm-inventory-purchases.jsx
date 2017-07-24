@@ -476,7 +476,7 @@ class PurchaseInsert extends Reflux.Component {
 								<Input ref="shoppingOrder" name="shoppingOrder" type="text" className="col s6"
 									label="Referencia del pedido" placeholder="Referencia del pedido"/>
 								<Input ref="shoppingNGuide" name="shoppingNGuide" type="text" className="col s6"
-									label="Número de guía" placeholder="Número de guía"/>
+									label="Número de guía" placeholder="Número de guía" required={true}/>
 							</div>
 						</div>
 
@@ -721,6 +721,7 @@ class PurchasesDatedReport extends Reflux.Component {
 		</SectionCard>)
 	}
 }
+
 /****************************************************************************************/
 
 class AdmInventoryPurchases extends Reflux.Component {

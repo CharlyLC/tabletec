@@ -166,6 +166,10 @@ class ArticleViewer extends Reflux.Component {
 
 		this.dropdowOptions = [
 			{
+				text: 'Editar',
+				select: this.onDropdowOptionEdit.bind(this)
+			},
+			{
 				text: 'Reporte de existencias',
 				select: this.onDropdowOptionStockReport.bind(this)
 			}
@@ -186,6 +190,10 @@ class ArticleViewer extends Reflux.Component {
 				ArticlesActions.findOne(nextProps.articleCode);
 			}
 		}
+	}
+
+	onDropdowOptionEdit(item) {
+		this.props.history.push(this.props.url + '/editar/' + this.props.articleCode);
 	}
 
 	onDropdowOptionStockReport() {
@@ -413,6 +421,162 @@ class ArticleInsert extends Reflux.Component {
 	}
 }
 
+class ArticleEdit extends Reflux.Component {
+	constructor(props) {
+        super(props);
+
+		this.state = {
+			brands: [],
+			categories: []
+		}
+
+		this.store = ArticlesStore;
+
+		this._formValidationRules = {
+			rules: {
+				articleName: { required: true, minlength: 6 },
+				articleDescription: { required: true, minlength: 8 }
+			},
+			messages: {
+				articleName: {
+					minlength: 'Debe escribir almenos 6 caracteres para el nombre de artículo'
+				},
+				articleDescription: {
+					minlength: 'Debe escribir almenos 8 caracteres para descripción de artículo'
+				}
+			}
+		}
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		if(this.props.articleCode){
+			ArticlesActions.findOne(this.props.articleCode);
+		}
+
+		ArticlesActions.findAllBrands((err, res)=>{
+			if(err){} else if(res){ this.setState({brands: res.brands}); }
+		});
+		ArticlesActions.findAllCategories((err, res)=>{
+			if(err){} else if(res){ this.setState({categories: res.categories}); }
+		});
+	}
+
+	componentDidMount() {
+		this.onFillData();
+		Materialize.updateTextFields();
+	}
+
+	componentDidUpdate() {
+		this.onFillData();
+		Materialize.updateTextFields();
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if(this.props.articleCode !== nextProps.articleCode){
+			if(nextProps.articleCode){
+				ArticlesActions.findOne(nextProps.articleCode);
+			}
+		}
+	}
+
+	onFillData() {
+		if((this.state.viewerStatus === 'ready') && this.state.selectedItem){
+			this.refs.articleName.value(this.state.selectedItem.name);
+			this.refs.articleBrand.value(this.state.selectedItem.brand);
+			this.refs.articleCategory.value(this.state.selectedItem.category);
+			this.refs.articleDescription.value = this.state.selectedItem.description;
+
+			$(this.refs.articleDescription).trigger('autoresize');
+		}
+	}
+
+	onFormSubmit() {
+		var data = {
+			code: this.state.selectedItem.code,
+			name: this.refs.articleName.value(),
+			brand: this.refs.articleBrand.value(),
+			category: this.refs.articleCategory.value(),
+			description: this.refs.articleDescription.value
+		}
+
+		this.refs.messageModal.show('sending');
+		ArticlesActions.updateOne(data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.close();
+				this.props.history.push(this.props.url + '/ver/' + this.props.articleCode);
+			}
+		});
+	}
+
+	render() {
+		switch(this.state.viewerStatus){
+		case 'ready':
+			return this.state.selectedItem ? (
+			<SectionCard title="Insertar nuevo artículo" iconName="library_books">
+				<div style={{padding: '0rem 1rem'}}>
+					<span>Introduzca los datos para el nuevo artículo.</span>
+				</div>
+
+				<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
+					<div>
+						<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos obligatorios</h6>
+
+						<div className="row">
+							<Input ref="articleName" name="articleName" type="text" label="Nombre *"
+								className="col s12" placeholder="Ingrese el nombre del artículo" required={true}/>
+						</div>
+						<div className="row">
+							<Input ref="articleBrand" name="articleBrand" className="col s6" type="autocomplete"
+								label="Marca *" placeholder="Marca del artículo" required={true} options={{data: this.state.brands, key: 'name', minLength: 1}}/>
+							<Input ref="articleCategory" name="articleCategory" className="col s6" type="autocomplete"
+								label="Categoria *" placeholder="Categoria del artículo" required={true} options={{data: this.state.categories, key: 'name', minLength: 1}}/>
+						</div>
+						<div className="row">
+							<div className="input-field col s12">
+								<textarea ref="articleDescription" id="articleDescription" className="materialize-textarea" required data-length="10240" placeholder="Detalles de la descripción"/>
+								<label htmlFor="articleDescription">{'Detalles de la descripción *'}</label>
+							</div>
+						</div>
+					</div>
+					<div className="row">
+						<h6 style={{fontWeight: 'bold', padding: '0rem 0.8rem'}}>Finalizar</h6>
+
+						<div style={{padding: '0rem 0.5rem'}}>
+							<button className="btn waves-effect waves-light col s12 red darken-2" type="submit"
+								style={{textTransform: 'none', fontWeight: 'bold', marginBottom: '1rem'}}>
+								Guardar datos
+								<i className="material-icons right">send</i>
+							</button>
+						</div>
+					</div>
+				</Form>
+				<MessageModal ref="messageModal"/>
+			</SectionCard>) :
+			(<SectionCard title="Vista de artículo" iconName="library_books">
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de artículos."/>
+				</div>
+			</SectionCard>);
+		case 'loading':
+			return (
+			<SectionCard title="Vista de artículo" iconName="library_books">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+		case 'error':
+			return (
+			<SectionCard title="Vista de artículo" iconName="library_books">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos del artículo"/>
+			</SectionCard>);
+		}
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryArticles extends Reflux.Component {
@@ -461,6 +625,8 @@ class AdmInventoryArticles extends Reflux.Component {
 								<ArticleViewer path="ver" url={this.url} history={this.props.history}
 									articleCode={this.props.match.params.article}/>
 								<ArticleInsert path="insertar"/>
+								<ArticleEdit path="editar" url={this.url} history={this.props.history}
+									articleCode={this.props.match.params.article}/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
