@@ -8,16 +8,20 @@
 
 import Reflux from 'reflux';
 
+import api from '../cloudtrade-api';
+import config from '../config';
+
 /****************************************************************************************/
 
-var InventoryActions = Reflux.createActions(['loadSideMenuItems']);
+var InventoryActions = Reflux.createActions(['loadSideMenuItems', 'loadWarehouses', 'loadWarehouseArticles']);
 
 class InventoryStore extends Reflux.Store {
     constructor() {
         super();
 
         this.state = {
-           sideMenuItems: []
+			company: config.company,
+			sideMenuItems: []
         }
 
         this.listenables = InventoryActions;
@@ -54,6 +58,24 @@ class InventoryStore extends Reflux.Store {
 		]
 
 		this.setState({ sideMenuItems: loadedData });
+	}
+
+	onLoadWarehouses(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.warehouses.findAll({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	onLoadWarehouseArticles(warehouseCode,callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.warehouses.findAllArticlesFor({company:this.state.company, warehouse: warehouseCode} ,auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
 	}
 }
 

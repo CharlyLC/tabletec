@@ -9,49 +9,26 @@
 import React from 'react';
 import Reflux from 'reflux';
 
+import InfoCard from '../components/info-card.jsx';
 import {Navbar} from '../components/navbar.jsx';
 import {BrandLogo, BrandIcon} from '../components/brand.jsx';
 import Sidenav from '../components/sidenav.jsx';
 import { InventoryUserMenu } from '../components/user-menu.jsx';
 import {Footer} from '../components/footer.jsx';
+import Progress from'../components/progress.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
 
 /****************************************************************************************/
 
-class InfoCard extends React.Component {
-	constructor(props) {
-        super(props);
-	}
-
-	render() {
-		return(
-		<div className="col s12 m3 l3">
-			<a className="card horizontal hoverable" style={{borderRadius:'10px 10px 10px 10px'}}>
-				<div className={'card-image white-text valign-wrapper center-align ' + this.props.themeColor}
-					style={{width:'30%', borderRadius:'10px 0px 0px 10px'}}>
-					<i className="medium material-icons   valing center " style={{width:'100%'}}>{this.props.iconName}</i>
-				</div>
-				<div className="card-stacked">
-					<div className="card-content" style={{padding:'0.5rem 0rem 0.5rem 2rem'}}>
-						<span style={{color:'black'}}><b>{this.props.text1}</b></span>
-						<h3 style={{color:'black' , margin: '0rem'}}><b>{this.props.text2}</b></h3>
-						<p style={{color:'black'}}>{this.props.text3}</p>
-					</div>
-				</div>
-			</a>
-		</div>
-		)
-	}
-}
-
-/****************************************************************************************/
 class AdmInventory extends Reflux.Component {
 	constructor(props) {
         super(props);
 
 		this.state = {
+			infoStatus: 'loading',
+			warehouses: [],
 			signed: false
 		}
 
@@ -66,8 +43,34 @@ class AdmInventory extends Reflux.Component {
 			}else{
 				InventoryActions.loadSideMenuItems();
 				this.setState({signed: true});
+				InventoryActions.loadWarehouses((err, res)=>{
+					if(err){
+						this.setState({infoStatus: 'error'});
+					}else{
+						this.setState({warehouses: res.warehouses.rows, infoStatus: 'done'});
+					}
+				});
 			}
 		});
+	}
+
+	onInfoCardRequireArticles(warehouse, callback) {
+		InventoryActions.loadWarehouseArticles(warehouse.code, callback);
+	}
+
+	renderInfo() {
+		switch(this.state.infoStatus) {
+		case 'done':
+			return this.state.warehouses.map((row, i)=>{
+				return <InfoCard key={i} iconName="assessment" data={row}
+					onRequireArticles={this.onInfoCardRequireArticles.bind(this)}/>
+			});
+		case 'loading':
+			return (
+			<div className="row">
+				<Progress type="indeterminate"/>
+			</div>);
+		}
 	}
 
 	render() {
@@ -87,10 +90,7 @@ class AdmInventory extends Reflux.Component {
 							<h5 className="center-align" style={{ textShadow:' 1px 1px 1px #999'}}><b>Inventarios</b></h5>
 						</div>
 						<div className="row">
-							<InfoCard iconName="assessment" text1="titulo" text2="500" text3="xx" themeColor={'grey darken-1'}/>
-							<InfoCard iconName="assessment" text1="titulo" text2="200" text3="xx" themeColor={'grey darken-1'}/>
-							<InfoCard iconName="assessment" text1="titulo" text2="50" text3="xx" themeColor={'grey darken-1'}/>
-							<InfoCard iconName="assessment" text1="titulo" text2="1000" text3="xx" themeColor={'grey darken-1'}/>
+							{this.renderInfo()}
 						</div>
 					</div>: null
 				}
