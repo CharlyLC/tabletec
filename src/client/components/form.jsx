@@ -48,7 +48,7 @@ module.exports = class Form extends React.Component {
 
 	render() {
 		return(
-		<form ref="form" method="post" encType="multipart/form-data">
+		<form ref="form" method="post" encType="multipart/form-data" style={{marginBottom: '0.5rem'}}>
 			{this.props.children}
 		</form>)
 	}

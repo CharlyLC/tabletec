@@ -269,7 +269,7 @@ class Table extends React.Component {
 			{this.props.children}
 			{
 				this.props.filterBy ?
-				<div className="row no-margin">
+				<div className="row">
 					<div className="input-field col s12" style={{padding: '0'}}>
 						<i className="material-icons prefix">search</i>
 						<input ref="filter" id="table-filter" type="text" className="validate" onKeyUp={this.onFilterKeyUp.bind(this)}/>

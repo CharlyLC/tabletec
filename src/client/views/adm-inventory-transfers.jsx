@@ -30,6 +30,7 @@ import Select from '../components/select.jsx';
 import { Switch, Case } from '../components/switch.jsx';
 import Table from '../components/table.jsx';
 import { DataImporter } from '../components/data-importer.jsx';
+import PdfViewerModal from '../components/pdf-viewer-modal.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
@@ -70,7 +71,7 @@ class ArticleMutator extends React.Component {
 			quantity = 0;
 			this.refs.quantity.value('0'); // This line doesn't trigger a new onChange event
 		}
-		
+
 		this.props.article.transfer.quantity = quantity;
 	}
 
@@ -262,7 +263,13 @@ class TransferViewer extends Reflux.Component {
 				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 			}else{
 				this.refs.messageModal.close();
-				window.open('data:application/pdf;base64,'+res.pdf);
+
+				if(this.refs.pdfViewer.supports()){
+					this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+					this.refs.pdfViewer.open();
+				}	else {
+					window.open('data:application/pdf;base64,'+res.pdf);
+				}
 			}
 		});
 	}
@@ -311,6 +318,7 @@ class TransferViewer extends Reflux.Component {
 					}
 				</Collapsible>
 				<MessageModal ref="messageModal"/>
+				<PdfViewerModal ref="pdfViewer"/>
 			</SectionCard>) : (
 			<SectionCard title="Orden de transferencia" iconName="swap_horiz">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
@@ -617,7 +625,13 @@ class TransfersDatedReport extends Reflux.Component {
 					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 				}else{
 					this.refs.messageModal.close();
-					window.open('data:application/pdf;base64,'+res.pdf);
+
+					if(this.refs.pdfViewer.supports()){
+						this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+						this.refs.pdfViewer.open();
+					}	else {
+						window.open('data:application/pdf;base64,'+res.pdf);
+					}
 				}
 			});
 		}
@@ -644,6 +658,7 @@ class TransfersDatedReport extends Reflux.Component {
 				</div>
 			</Form>
 			<MessageModal ref="messageModal"/>
+			<PdfViewerModal ref="pdfViewer"/>
 		</SectionCard>)
 	}
 }

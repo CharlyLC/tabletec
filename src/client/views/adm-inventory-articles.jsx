@@ -27,6 +27,7 @@ import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
 import { Switch, Case } from '../components/switch.jsx';
 import Table from '../components/table.jsx';
+import PdfViewerModal from '../components/pdf-viewer-modal.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
@@ -203,7 +204,13 @@ class ArticleViewer extends Reflux.Component {
 				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 			}else{
 				this.refs.messageModal.close();
-				window.open('data:application/pdf;base64,'+res.pdf);
+
+				if(this.refs.pdfViewer.supports()){
+					this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+					this.refs.pdfViewer.open();
+				}	else {
+					window.open('data:application/pdf;base64,'+res.pdf);
+				}
 			}
 		});
 	}
@@ -243,16 +250,17 @@ class ArticleViewer extends Reflux.Component {
 					<PropertySingle name="Fecha de modificación" value={this.state.selectedItem.modifiedDate}/>
 				</div>
 				<MessageModal ref="messageModal"/>
+				<PdfViewerModal ref="pdfViewer"/>
 			</SectionCard>) :
 			(<SectionCard title="Vista de artículo" iconName="library_books">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
 					<Alert type="info" text="Seleccione una elemento de la lista de artículos."/>
 				</div>
 			</SectionCard>);
-			
+
 		case 'loading':
 			return (
-			<SectionCard title="Vista de artículo" iconName="library_books">
+			<SectionCard title="Cargando datos del artículo..." iconName="library_books">
 				<div className="row">
 					<Progress type="indeterminate"/>
 				</div>
@@ -384,7 +392,7 @@ class ArticleInsert extends Reflux.Component {
 							label="Categoria *" placeholder="Categoria del artículo" required={true} options={{data: this.state.categories, key: 'name', minLength: 1}}/>
 					</div>
 					<div className="row no-margin">
-						<div className="input-field col s12">
+						<div className="input-field col s12" style={{marginTop: '1.5rem'}}>
 							<textarea ref="articleDescription" id="articleDescription" className="materialize-textarea" required data-length="10240" placeholder="Detalles de la descripción"/>
 							<label htmlFor="articleDescription">{'Detalles de la descripción *'}</label>
 						</div>
@@ -451,10 +459,6 @@ class ArticleEdit extends Reflux.Component {
 	componentWillMount() {
 		super.componentWillMount();
 
-		if(this.props.articleCode){
-			ArticlesActions.findOne(this.props.articleCode);
-		}
-
 		ArticlesActions.findAllBrands((err, res)=>{
 			if(err){} else if(res){ this.setState({brands: res.brands}); }
 		});
@@ -464,6 +468,10 @@ class ArticleEdit extends Reflux.Component {
 	}
 
 	componentDidMount() {
+		if(this.props.articleCode && ((this.state.viewerStatus !== 'ready') || !this.state.selectedItem)){
+			ArticlesActions.findOne(this.props.articleCode);
+		}
+
 		this.onFillData();
 		Materialize.updateTextFields();
 	}
@@ -516,9 +524,9 @@ class ArticleEdit extends Reflux.Component {
 		switch(this.state.viewerStatus){
 		case 'ready':
 			return this.state.selectedItem ? (
-			<SectionCard title="Insertar nuevo artículo" iconName="library_books">
+			<SectionCard title="Editar datos de artículo" iconName="library_books">
 				<div style={{padding: '0rem 1rem'}}>
-					<span>Introduzca los datos para el nuevo artículo.</span>
+					<span>Introduzca los datos del artículo.</span>
 				</div>
 
 				<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
@@ -536,7 +544,7 @@ class ArticleEdit extends Reflux.Component {
 								label="Categoria *" placeholder="Categoria del artículo" required={true} options={{data: this.state.categories, key: 'name', minLength: 1}}/>
 						</div>
 						<div className="row">
-							<div className="input-field col s12">
+							<div className="input-field col s12" style={{marginTop: '1.5rem'}}>
 								<textarea ref="articleDescription" id="articleDescription" className="materialize-textarea" required data-length="10240" placeholder="Detalles de la descripción"/>
 								<label htmlFor="articleDescription">{'Detalles de la descripción *'}</label>
 							</div>
@@ -563,7 +571,7 @@ class ArticleEdit extends Reflux.Component {
 			</SectionCard>);
 		case 'loading':
 			return (
-			<SectionCard title="Vista de artículo" iconName="library_books">
+			<SectionCard title="Cargando datos del artículo..." iconName="library_books">
 				<div className="row">
 					<Progress type="indeterminate"/>
 				</div>

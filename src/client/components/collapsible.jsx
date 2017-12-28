@@ -61,7 +61,7 @@ export class Collapsible extends React.Component {
 
 	render() {
 		return(
-		<ul ref="collapsible" className="collapsible" data-collapsible="accordion">
+		<ul ref="collapsible" className="collapsible" data-collapsible="accordion" style={{marginBottom: '0.4rem'}}>
 			{this.props.children}
 		</ul>)
 	}

@@ -29,6 +29,7 @@ import Select from '../components/select.jsx';
 import { Switch, Case } from '../components/switch.jsx';
 import Table from '../components/table.jsx';
 import { DataImporter } from '../components/data-importer.jsx';
+import PdfViewerModal from '../components/pdf-viewer-modal.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
@@ -69,7 +70,7 @@ class ArticleMutator extends React.Component {
 			quantity = 0;
 			this.refs.quantity.value('0'); // This line doesn't trigger a new onChange event
 		}
-		
+
 		this.props.article.purchase.quantity = quantity;
 	}
 
@@ -263,7 +264,13 @@ class PurchaseViewer extends Reflux.Component {
 				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 			}else{
 				this.refs.messageModal.close();
-				window.open('data:application/pdf;base64,'+res.pdf);
+
+				if(this.refs.pdfViewer.supports()){
+					this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+					this.refs.pdfViewer.open();
+				}	else {
+					window.open('data:application/pdf;base64,'+res.pdf);
+				}
 			}
 		});
 	}
@@ -275,7 +282,7 @@ class PurchaseViewer extends Reflux.Component {
 			return item ? (
 			<SectionCard title="Orden de compra" iconName="shopping_cart" menuID="purchaseViewer" menuItems={this.dropdowOptions}>
 				<h6 style={{fontWeight: 'bold', padding: '0.3rem 1rem'}}>{item.business}</h6>
-			
+
 				<Collapsible defaultActiveIndex={0}>
 					<CollapsibleCard title="Datos de la compra" iconName="assignment_turned_in">
 						<div className="row" style={{marginBottom: '0.5rem'}}>
@@ -324,6 +331,7 @@ class PurchaseViewer extends Reflux.Component {
 					}
 				</Collapsible>
 				<MessageModal ref="messageModal"/>
+				<PdfViewerModal ref="pdfViewer"/>
 			</SectionCard>) : (
 			<SectionCard title="Orden de compra" iconName="shopping_cart">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
@@ -460,7 +468,7 @@ class PurchaseInsert extends Reflux.Component {
 			<div style={{padding: '0rem 1rem'}}>
 				<span>Introduzca los datos para la orden de compra.</span>
 			</div>
-	
+
 			<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
 				<Collapsible ref="collapsible" defaultActiveIndex={0}>
 					<CollapsibleCard title="Información de la orden de compra" iconName="shop">
@@ -691,7 +699,13 @@ class PurchasesDatedReport extends Reflux.Component {
 					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 				}else{
 					this.refs.messageModal.close();
-					window.open('data:application/pdf;base64,'+res.pdf);
+
+					if(this.refs.pdfViewer.supports()){
+						this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+						this.refs.pdfViewer.open();
+					}	else {
+						window.open('data:application/pdf;base64,'+res.pdf);
+					}
 				}
 			});
 		}
@@ -718,6 +732,7 @@ class PurchasesDatedReport extends Reflux.Component {
 				</div>
 			</Form>
 			<MessageModal ref="messageModal"/>
+			<PdfViewerModal ref="pdfViewer"/>
 		</SectionCard>)
 	}
 }

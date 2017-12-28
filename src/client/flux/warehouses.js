@@ -14,7 +14,7 @@ import config from '../config';
 /****************************************************************************************/
 
 var WarehousesActions = Reflux.createActions([
-	'findAll', 'findOne', 'insertOne',
+	'findAll', 'findOne', 'insertOne', 'updateOne',
 	'findAllCities',
 	'getStockReport'
 ]);
@@ -73,6 +73,16 @@ class WarehousesStore extends Reflux.Store {
 		if(auth){
 			data.company = this.state.company;
 			api.inventory.warehouses.insertOne(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	onUpdateOne(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			data.company = this.state.company;
+			api.inventory.warehouses.updateOne(data, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}

@@ -26,6 +26,7 @@ import SectionCard from '../components/section-card.jsx';
 import SectionView from '../components/section-view.jsx';
 import { Switch, Case } from '../components/switch.jsx';
 import Table from '../components/table.jsx';
+import PdfViewerModal from '../components/pdf-viewer-modal.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
@@ -131,6 +132,10 @@ class WarehousesViewer extends Reflux.Component {
 
 		this.dropdowOptions = [
 			{
+				text: 'Editar',
+				select: this.onDropdowOptionEdit.bind(this)
+			},
+			{
 				text: 'Reporte de existencias',
 				select: this.onDropdowOptionStockReport.bind(this)
 			}
@@ -153,6 +158,10 @@ class WarehousesViewer extends Reflux.Component {
 		}
 	}
 
+	onDropdowOptionEdit(item) {
+		this.props.history.push(this.props.url + '/editar/' + this.props.warehouseCode);
+	}
+
 	onDropdowOptionStockReport() {
 		this.refs.messageModal.show('sending');
 		WarehousesActions.getStockReport(this.props.warehouseCode, (err, res)=>{
@@ -160,9 +169,15 @@ class WarehousesViewer extends Reflux.Component {
 				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 			}else{
 				this.refs.messageModal.close();
-				window.open('data:application/pdf;base64,'+res.pdf);
+
+				if(this.refs.pdfViewer.supports()){
+					this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+					this.refs.pdfViewer.open();
+				}	else {
+					window.open('data:application/pdf;base64,'+res.pdf);
+				}
 			}
-		});		
+		});
 	}
 
 	render(){
@@ -171,7 +186,7 @@ class WarehousesViewer extends Reflux.Component {
 		case 'ready':
 			return item ? (
 			<SectionCard title="Datos de almacen" iconName="store" menuID="warehousesViewer" menuItems={this.dropdowOptions}>
-				
+
 				<h6 style={{fontWeight: 'bold', padding: '1rem'}}>{item.name}</h6>
 
 				<Collapsible defaultActiveIndex={0}>
@@ -203,6 +218,7 @@ class WarehousesViewer extends Reflux.Component {
 					</CollapsibleCard>
 				</Collapsible>
 				<MessageModal ref="messageModal"/>
+				<PdfViewerModal ref="pdfViewer"/>
 			</SectionCard>) : (
 			<SectionCard title="Datos de almacen" iconName="store">
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
@@ -240,6 +256,8 @@ class WarehousesInsert extends Reflux.Component {
 
 		this._formValidationRules = {
 		}
+
+		this.title = "Insertar nuevo almacén";
 	}
 
 	componentWillMount() {
@@ -255,16 +273,7 @@ class WarehousesInsert extends Reflux.Component {
 	}
 
 	onFormSubmit(form) {
-		var data = {
-			clientCode: this.refs.warehouseCode.value(),
-			name: this.refs.warehouseName.value(),
-			type: this.refs.warehouseType.value(),
-			country: this.refs.warehouseCountry.value(),
-			city: this.refs.warehouseCity.value(),
-			address: this.refs.warehouseAddress.value(),
-			phone: this.refs.warehousePhone.value(),
-			postcode: this.refs.warehousePostcode.value(),
-		}
+		var data = this.getCompileAndValidateInputData();
 
 		this.refs.messageModal.show('sending');
 		WarehousesActions.insertOne(data, (err, res)=>{
@@ -276,33 +285,48 @@ class WarehousesInsert extends Reflux.Component {
 		});
 	}
 
+	getCompileAndValidateInputData() {
+		var data = {
+			clientCode: this.refs.warehouseCode.value(),
+			name: this.refs.warehouseName.value(),
+			type: this.refs.warehouseType.value(),
+			country: this.refs.warehouseCountry.value(),
+			city: this.refs.warehouseCity.value(),
+			address: this.refs.warehouseAddress.value(),
+			phone: this.refs.warehousePhone.value(),
+			postcode: this.refs.warehousePostcode.value(),
+		}
+
+		return data;
+	}
+
 	render() {
 		return(
-		<SectionCard title="Insertar nuevo almacén" iconName="library_books">
+		<SectionCard title={this.title} iconName="library_books">
 			<div className="row no-margin">
-				<h6 style={{padding: '0rem 0.8rem'}}>Introduzca los datos para el nuevo almacén.</h6>
+				<h6 style={{padding: '0rem 0.8rem'}}>Introduzca los datos para el almacén.</h6>
 			</div>
 
 			<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
 				<div style={{padding: '0.5rem 0.3rem'}}>
 					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos obligatorios</h6>
 
-					<div className="row no-margin">
+					<div className="row">
 						<Input ref="warehouseSubsidiary" name="warehouseSubsidiary" className="col s6" type="text"
 							label="Sucursal" placeholder="Sucursal" disabled={true}/>
 						<Input ref="warehouseCode" name="warehouseCode" className="col s6" type="text"
 							label="Código del almacén *" placeholder="Ingrese el código del almacén" required={true}/>
 					</div>
-					<div className="row no-margin">
+					<div className="row">
 						<Input ref="warehouseType" name="warehouseType" className="col s12" type="text"
 							label="Tipo *" placeholder="Ingrese el tipo de almacén" required={true}/>
 					</div>
-					<div className="row no-margin">
+					<div className="row">
 						<Input ref="warehouseName" name="warehouseName" className="col s12" type="text"
 							label="Nombre *" placeholder="Ingrese el nombre del almacén" required={true}/>
 					</div>
 
-					<div className="row no-margin">
+					<div className="row">
 						<Input ref="warehouseCountry" name="warehouseCountry" className="col s6" type="autocomplete"
 							label="País *" placeholder="País" required={true} options={{data: this.state.countries, key: 'name', minLength: 1}}/>
 						<Input ref="warehouseCity" name="warehouseCity" className="col s6" type="autocomplete"
@@ -317,7 +341,7 @@ class WarehousesInsert extends Reflux.Component {
 				<div style={{padding: '0.5rem 0.3rem'}}>
 					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos opcionales</h6>
 
-					<div className="row no-margin">	
+					<div className="row">
 						<Input ref="warehousePhone" name="warehousePhone" className="col s6" type="text"
 							label="Teléfono" placeholder="Ingrese el número de teléfono del almacén"/>
 						<Input ref="warehousePostcode" name="warehousePostcode" className="col s6" type="text"
@@ -340,6 +364,80 @@ class WarehousesInsert extends Reflux.Component {
 			</Form>
 			<MessageModal ref="messageModal"/>
 		</SectionCard>)
+	}
+}
+
+class WarehousesUpdate extends WarehousesInsert {
+	constructor(props) {
+		super(props);
+
+		this.title = "Editar datos de almacén";
+	}
+
+	componentDidMount() {
+		if(this.props.warehouseCode && ((this.state.viewerStatus !== 'ready') || !this.state.selectedItem)){
+			WarehousesActions.findOne(this.props.warehouseCode);
+		}
+
+		this.onFillData();
+		Materialize.updateTextFields();
+	}
+
+	componentDidUpdate() {
+		this.onFillData();
+		Materialize.updateTextFields();
+	}
+
+	onFillData() {
+		if((this.state.viewerStatus === 'ready') && this.state.selectedItem){
+			this.refs.warehouseCode.value(this.state.selectedItem.clientCode);
+			this.refs.warehouseType.value(this.state.selectedItem.type);
+			this.refs.warehouseName.value(this.state.selectedItem.name);
+			this.refs.warehouseCountry.value(this.state.selectedItem.country);
+			this.refs.warehouseCity.value(this.state.selectedItem.city);
+			this.refs.warehouseAddress.value(this.state.selectedItem.address);
+			this.refs.warehousePhone.value(this.state.selectedItem.phone);
+			this.refs.warehousePostcode.value(this.state.selectedItem.postcode);
+		}
+	}
+
+	onFormSubmit(form) {
+		var data = this.getCompileAndValidateInputData();
+		data.code = this.props.warehouseCode;
+
+		this.refs.messageModal.show('sending');
+		WarehousesActions.updateOne(data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.close();
+				this.props.history.push(this.props.url + '/ver/' + this.props.warehouseCode);
+			}
+		});
+	}
+
+	render() {
+		switch(this.state.viewerStatus){
+		case 'ready':
+			return this.state.selectedItem ? (super.render()) :
+			(<SectionCard title={this.title} iconName="library_books">
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de almacenes."/>
+				</div>
+			</SectionCard>);
+		case 'loading':
+			return (
+			<SectionCard title="Cargando datos de almacén..." iconName="library_books">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+		case 'error':
+			return (
+			<SectionCard title={this.title} iconName="library_books">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos del almacén"/>
+			</SectionCard>);
+		}
 	}
 }
 
@@ -391,6 +489,8 @@ class AdmInventoryWarehouses extends Reflux.Component {
 								<WarehousesViewer path="ver" url={this.url} history={this.props.history}
 									warehouseCode={this.props.match.params.warehouse}/>
 								<WarehousesInsert path="insertar"/>
+								<WarehousesUpdate path="editar" url={this.url} history={this.props.history}
+									warehouseCode={this.props.match.params.warehouse}/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">

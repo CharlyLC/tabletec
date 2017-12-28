@@ -59,7 +59,7 @@ var articles = {
 	},
 	updateOne: function(data, authorization, callback) {
 		request
-			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/editar')
+			.put(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/editar')
 			.set('authorization', authorization)
 			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
@@ -98,10 +98,11 @@ var warehouses = {
 			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
-	getStockReport: function(data, authorization, callback) {
+	updateOne: function(data, authorization, callback) {
 		request
-			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes/reportes/stock/' + data.warehouse)
+			.put(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/almacenes/editar')
 			.set('authorization', authorization)
+			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
 	},
 	findAllArticlesFor: function(data, authorization, callback) {
@@ -172,6 +173,13 @@ var providers = {
 	insertOne: function(data, authorization, callback) {
 		request
 			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/proveedores/insertar')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	updateOne: function(data, authorization, callback) {
+		request
+			.put(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/proveedores/editar')
 			.set('authorization', authorization)
 			.send(data)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });

@@ -126,7 +126,12 @@ class ProviderViewer extends Reflux.Component {
 
 		this.store = ProvidersStore;
 
-		this.dropdowOptions = [];
+		this.dropdowOptions = [
+			{
+				text: 'Editar',
+				select: this.onDropdowOptionEdit.bind(this)
+			}
+		];
 	}
 
 	componentWillMount() {
@@ -143,6 +148,10 @@ class ProviderViewer extends Reflux.Component {
 				ProvidersActions.findOne(nextProps.providerCode);
 			}
 		}
+	}
+
+	onDropdowOptionEdit(item) {
+		this.props.history.push(this.props.url + '/editar/' + this.props.providerCode);
 	}
 
 	render(){
@@ -162,7 +171,11 @@ class ProviderViewer extends Reflux.Component {
 						</div>
 
 						<div className="row" style={{marginBottom: '0.5rem'}}>
+							<ItemProperty name="País" value={item.country} className="col s6"/>
 							<ItemProperty name="Ciudad" value={item.city} className="col s6"/>
+						</div>
+
+						<div className="row" style={{marginBottom: '0.5rem'}}>
 							<ItemProperty name="Teléfono" value={item.phone} className="col s6"/>
 						</div>
 
@@ -187,7 +200,7 @@ class ProviderViewer extends Reflux.Component {
 			</SectionCard>);
 		case 'loading':
 			return (
-			<SectionCard title="cargando datos de proveedor" iconName="people">
+			<SectionCard title="Cargando datos de proveedor" iconName="people">
 				<div className="row">
 					<Progress type="indeterminate"/>
 				</div>
@@ -206,7 +219,8 @@ class ProviderInsert extends Reflux.Component {
 		super(props);
 
 		this.state = {
-			cities: []
+			cities: [],
+			countries: [{name: 'Bolivia'}]
 		}
 
 		this.stores = [ProvidersStore];
@@ -222,6 +236,8 @@ class ProviderInsert extends Reflux.Component {
 				}
 			}
 		}
+
+		this.title = "Insertar nuevo proveedor";
 	}
 
 	componentWillMount() {
@@ -237,15 +253,7 @@ class ProviderInsert extends Reflux.Component {
 	}
 
 	onFormSubmit(form) {
-		var data = {
-			name: this.refs.providerName.value(),
-			nit: this.refs.providerNIT.value(),
-			description: this.refs.providerDescription.value,
-			city: this.refs.providerCity.value(),
-			phone: this.refs.providerPhone.value(),
-			email: this.refs.email.value(),
-			address: this.refs.providerAddress.value()
-		}
+		var data = this.getCompileAndValidateInputData();
 
 		this.refs.messageModal.show('sending');
 		ProvidersActions.insertOne(data, (err, res)=>{
@@ -257,43 +265,61 @@ class ProviderInsert extends Reflux.Component {
 		});
 	}
 
+	getCompileAndValidateInputData() {
+		var data = {
+			name: this.refs.providerName.value(),
+			nit: this.refs.providerNIT.value(),
+			description: this.refs.providerDescription.value,
+			country: this.refs.providerCountry.value(),
+			city: this.refs.providerCity.value(),
+			phone: this.refs.providerPhone.value(),
+			email: this.refs.email.value(),
+			address: this.refs.providerAddress.value()
+		}
+		return data;
+	}
+
 	render() {
 		return(
-		<SectionCard title="Insertar nuevo proveedor" iconName="library_books">
+		<SectionCard title={this.title} iconName="library_books">
 			<div style={{padding: '0rem 1rem'}}>
-				<span>Introduzca los datos para el nuevo proveedor.</span>
+				<span>Introduzca los datos para el proveedor.</span>
 			</div>
 
 			<Form ref="insertForm" rules={this._formValidationRules} onSubmit={this.onFormSubmit.bind(this)}>
 				<div style={{padding: '0rem 0.3rem'}}>
 					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos obligatorios</h6>
 
-					<div className="row no-margin">
+					<div className="row">
 						<Input ref="providerName" name="providerName" className="col s6" type="text"
 							label="Nombre del proveedor *" placeholder="Ingrese el nombre del proveedor" required={true}/>
 						<Input ref="providerNIT" name="providerNIT" className="col s6" type="text"
 							label="NIT *" placeholder="Ingrese el NIT del proveedor" required={true}/>
 					</div>
 
-					<div className="row no-margin">
+					<div className="row">
+						<Input ref="providerCountry" name="providerCountry" className="col s6" type="autocomplete"
+							label="País del proveedor *" placeholder="Ingrese el país del proveedor" required={true} options={{data: this.state.countries, key: 'name', minLength: 1}}/>
 						<Input ref="providerCity" name="providerCity" className="col s6" type="autocomplete"
 							label="Ciudad del proveedor *" placeholder="Ingrese la ciudad del proveedor" required={true} options={{data: this.state.cities, key: 'name', minLength: 1}}/>
+					</div>
+					<div className="row">
 						<Input ref="providerPhone" name="providerPhone" className="col s6" type="text"
 							label="Teléfono *" placeholder="Ingrese el teléfono del proveedor" required={true}/>
 					</div>
 				</div>
 				<div style={{padding: '0rem 0.3rem'}}>
 					<h6 style={{fontWeight: 'bold', padding: '0rem 0.5rem'}}>Campos opcionales</h6>
-					<div className="row no-margin">
+					<div className="row">
 						<div className="input-field col s12">
 							<textarea ref="providerDescription" id="providerDescription" className="materialize-textarea" data-length="10240" placeholder="Detalles de la descripción"/>
 							<label htmlFor="providerDescription">{'Detalles de la descripción'}</label>
 						</div>
 					</div>
-					<div className="row no-margin">
+					<div className="row">
 						<Input ref="email" name="email" className="col s12" type="email" label="Email" placeholder="Email"/>
 					</div>
-					<div className="row no-margin">
+					<div className="row">
 						<Input ref="providerAddress" name="providerAddress" type="text" label="Dirección"
 							className="col s12" placeholder="Ingrese la dirección del proveedor"/>
 					</div>
@@ -315,6 +341,82 @@ class ProviderInsert extends Reflux.Component {
 
 			<MessageModal ref="messageModal"/>
 		</SectionCard>);
+	}
+}
+
+class ProviderUpdate extends ProviderInsert {
+	constructor(props) {
+		super(props);
+		this.title = "Editar datos de proveedor";
+	}
+
+	componentDidMount() {
+		if(this.props.providerCode && ((this.state.viewerStatus !== 'ready') || !this.state.selectedItem)){
+			ProvidersActions.findOne(this.props.providerCode);
+		}
+
+		this.onFillData();
+		Materialize.updateTextFields();
+	}
+
+	componentDidUpdate() {
+		this.onFillData();
+		Materialize.updateTextFields();
+	}
+
+	onFillData() {
+		if((this.state.viewerStatus === 'ready') && this.state.selectedItem){
+			this.refs.providerName.value(this.state.selectedItem.name);
+			this.refs.providerNIT.value(this.state.selectedItem.nit);
+			this.refs.providerCountry.value(this.state.selectedItem.country);
+			this.refs.providerCity.value(this.state.selectedItem.city);
+			this.refs.providerPhone.value(this.state.selectedItem.phone);
+			this.refs.providerDescription.value = this.state.selectedItem.description;
+			this.refs.email.value(this.state.selectedItem.email);
+			this.refs.providerAddress.value(this.state.selectedItem.address);
+
+			$(this.refs.providerDescription).trigger('autoresize');
+		}
+	}
+
+	onFormSubmit(form) {
+		var data = this.getCompileAndValidateInputData();
+		data.code = this.props.providerCode;
+
+		this.refs.messageModal.show('sending');
+		ProvidersActions.updateOne(data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.close();
+				this.props.history.push(this.props.url + '/ver/' + this.props.providerCode);
+			}
+		});
+	}
+
+	render() {
+		switch(this.state.viewerStatus){
+		case 'ready':
+			return this.state.selectedItem ? (super.render()) :
+			(
+			<SectionCard title={this.title} iconName="people">
+				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
+					<Alert type="info" text="Seleccione una elemento de la lista de proveedores."/>
+				</div>
+			</SectionCard>);
+		case 'loading':
+			return (
+			<SectionCard title="Cargando datos de proveedor..." iconName="people">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+		case 'error':
+			return (
+			<SectionCard title={this.title} iconName="people">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos del proveedor"/>
+			</SectionCard>);
+		}
 	}
 }
 
@@ -366,6 +468,8 @@ class AdmInventoryProviders extends Reflux.Component {
 								<ProviderViewer path="ver" url={this.url} history={this.props.history}
 									providerCode={this.props.match.params.provider}/>
 								<ProviderInsert path="insertar"/>
+								<ProviderUpdate path="editar" url={this.url} history={this.props.history}
+									providerCode={this.props.match.params.provider}/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">

@@ -14,7 +14,7 @@ import config from '../config';
 /****************************************************************************************/
 
 var ProvidersActions = Reflux.createActions([
-	'findAll', 'findOne', 'insertOne',
+	'findAll', 'findOne', 'insertOne', 'updateOne',
 	'findAllCities'
 ]);
 
@@ -72,6 +72,16 @@ class ProvidersStore extends Reflux.Store {
 		if(auth){
 			data.company = this.state.company;
 			api.inventory.providers.insertOne(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	onUpdateOne(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			data.company = this.state.company;
+			api.inventory.providers.updateOne(data, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}
