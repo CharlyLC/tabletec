@@ -45,6 +45,13 @@ module.exports = class Modal extends React.Component {
                 finalState = state; break;
             case 'string':
                 switch(state){
+                    case 'warning':
+                        finalState = {
+                            type: 'error',
+                            title: 'Advertencia',
+                            message: ''+ msg
+                        };
+                        break;
                     case 'sending':
                         finalState = {
                             type: 'process',

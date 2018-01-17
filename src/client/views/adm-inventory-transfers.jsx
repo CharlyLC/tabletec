@@ -63,6 +63,7 @@ class ArticleMutator extends React.Component {
 	}
 
 	onQuantityChange() {
+				
 		let quantity = parseInt(this.refs.quantity.value(), 10);
 
 		if(Number.isInteger(quantity)){
@@ -73,6 +74,8 @@ class ArticleMutator extends React.Component {
 		}
 
 		this.props.article.transfer.quantity = quantity;
+
+		
 	}
 
 	onUnitPriceChange() {
@@ -96,9 +99,9 @@ class ArticleMutator extends React.Component {
 			</div>
 			<div className="row no-margin" >
 				<Input ref="quantity" name={'quantity' + this.props.id} placeholder="Cantidad" label="Cantidad *" className="col s6" type="text"
-					onChange={this.onQuantityChange.bind(this)} required={true}/>
+					onChange={this.onQuantityChange.bind(this)} required={true} />
 				<Input ref="unitPrice" name={'unitPrice' + this.props.id} placeholder="Precio unitario" label="Precio unitario *" className="col s6" type="text"
-					onChange={this.onUnitPriceChange.bind(this)} required={true}/>
+					onChange={this.onUnitPriceChange.bind(this)} required={true} /> 
 			</div>
 			<div className="row no-margin">
 				<div className="input-field col s12">
@@ -401,6 +404,7 @@ class TransferInsert extends Reflux.Component {
 	}
 
 	onFormSubmit(form) {
+		var flag = false;
 		let transactions = this.refs.transactions.getSelectedTransactions();
 
 		var data = {
@@ -409,6 +413,9 @@ class TransferInsert extends Reflux.Component {
 			destinationWarehouseCode: this.refs.destination.value(),
 			description: this.refs.transfersDescription.value,
 			articles: transactions.map(article=>{
+				if(article.transfer.quantity > article.stock) { 
+							flag = true;
+						}
 				return {
 					code: article.code,
 					quantity: article.transfer.quantity,
@@ -424,16 +431,21 @@ class TransferInsert extends Reflux.Component {
 		let p2 = new Promise((resolve, reject)=>{
 			if(data.articles.length > 0){ resolve(); }else{ reject({opencard: 2}); }
 		});
-
+		
 		Promise.all([p1, p2]).then(values => {
-			this.refs.messageModal.show('sending');
-			TransfersActions.insertOne(data, (err, res)=>{
-				if(err){
-					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
-				}else{
-					this.refs.messageModal.show('success_save');
-				}
-			});
+			
+			if(flag) {
+				this.refs.messageModal.show('warning','Se está superando la cantidad solicitada')
+			} else {
+				this.refs.messageModal.show('sending');
+				TransfersActions.insertOne(data, (err, res)=>{
+					if(err){
+						this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+					}else{
+						this.refs.messageModal.show('success_save');
+					}
+				});
+			}
 		}).catch(err=>{
 			this.refs.collapsible.openCard(err.opencard);
 			this.refs.insertForm.valid();

@@ -98,6 +98,19 @@ module.exports = class Input extends React.Component {
 		}
 	}
 
+	onClick(event) {
+		if(this.props.onClick){
+			this.props.onClick(this);
+		}
+		
+	}
+
+	onKeyUp() {
+		if(this.props.onKeyUp){
+			this.props.onKeyUp();
+		}
+	}
+
 	onFocus() {
 		if(this.props.onFocus){
 			this.props.onFocus();
@@ -129,22 +142,22 @@ module.exports = class Input extends React.Component {
 						(
 							this.props.readOnly ?
 							<input ref="inputField" className="validate" type="text" id={this.props.name} name={this.props.name} placeholder={this.props.placeholder}
-								required readOnly onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)}
+								required readOnly onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)} onClick={this.onClick.bind(this)} onKeyUp={this.onKeyUp.bind(this)}
 								style={{height: '2.6rem', marginBottom: '0.2rem'}}/>
 							:
 							<input ref="inputField" className="validate" type="text" id={this.props.name} name={this.props.name} placeholder={this.props.placeholder}
-								required onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)}
+								required onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)} onClick={this.onClick.bind(this)} onKeyUp={this.onKeyUp.bind(this)}
 								style={{height: '2.6rem', marginBottom: '0.3rem'}}/>
 						)
 						:
 						(
 							this.props.readOnly ?
 							<input ref="inputField" className="validate" type="text" id={this.props.name} name={this.props.name} placeholder={this.props.placeholder}
-								readOnly onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)}
+								readOnly onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)} onClick={this.onClick.bind(this)} onKeyUp={this.onKeyUp.bind(this)}
 								style={{height: '2.6rem', marginBottom: '0.2rem'}}/>
 							:
 							<input ref="inputField" className="validate" type="text" id={this.props.name} name={this.props.name} placeholder={this.props.placeholder}
-								onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)}
+								onChange={this.onChange.bind(this)} onFocus={this.onFocus.bind(this)} onBlur={this.onBlur.bind(this)} onClick={this.onClick.bind(this)} onKeyUp={this.onKeyUp.bind(this)}
 								style={{height: '2.6rem', marginBottom: '0.2rem'}}/>
 						)
 					)

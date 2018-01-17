@@ -268,6 +268,7 @@ class WarehouseOutletInsert extends Reflux.Component {
 	}
 
 	onFormSubmit(form) {
+		var flag = false;
 		let selectedTransactions = this.refs.transactions.getSelectedTransactions();
 
 		let data = {
@@ -278,6 +279,9 @@ class WarehouseOutletInsert extends Reflux.Component {
 				return {
 					code: tran.code,
 					articles: tran.articles.map(article=>{
+						if( article.op.quantity > article.quantity) { 
+							flag = true;
+						}
 						return {
 							code: article.code,
 							warehouseCode: (this.state.transactType === 'transfers') ? tran.originWarehouseCode : article.op.warehouseCode,
@@ -288,15 +292,19 @@ class WarehouseOutletInsert extends Reflux.Component {
 				}
 			})
 		}
-
-		this.refs.messageModal.show('sending');
-		WarehouseOutletsActions.insertOne(data, (err, res)=>{
+		
+		if(flag) {
+			this.refs.messageModal.show('warning','Se está superando la cantidad solicitada')
+		} else {
+			this.refs.messageModal.show('sending');
+			WarehouseOutletsActions.insertOne(data, (err, res)=>{
 			if(err){
 				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
 			}else{
 				this.refs.messageModal.show('success_save');
 			}
 		});
+		}
 	}
 
 	render() {

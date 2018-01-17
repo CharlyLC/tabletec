@@ -1,4 +1,4 @@
 module.exports = {
-	company: 'tabletec',
-	apiDomainURL: 'http://cloudtrade.cf'
+	company: 'tektable',
+	apiDomainURL: 'http://cloudtrade.ml'
 }

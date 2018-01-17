@@ -90,7 +90,7 @@ class ArticleMutator extends React.Component {
 					<span>{'Cantidad solicitada en ' + this.props.transactType + ': ' + this.props.article.quantity}</span>
 				</div>
 				<Input ref="quantity" name={'quantity' + this.props.id} className="col s4" type="text" required={true}
-					placeholder="Cantidad" label="Cantidad" onChange={this.onChange.bind(this)}/>
+					placeholder="Cantidad" label="Cantidad" onChange={this.onChange.bind(this)} />
 			</div>
 
 			<div className="row no-margin" >
@@ -385,6 +385,7 @@ class WarehousesEntryInsert extends Reflux.Component {
 	}
 
 	onFormSubmit(form) {
+		var flag = false;
 		let selectedTransactions = this.refs.transactions.getSelectedTransactions();
 
 		let data = {
@@ -395,6 +396,9 @@ class WarehousesEntryInsert extends Reflux.Component {
 				return {
 					code: tran.code,
 					articles: tran.articles.map(article=>{
+						if( article.op.quantity > article.quantity) { 
+							flag = true;
+						}
 						return {
 							warehouseCode: (this.state.transactType === 'transfers') ? tran.destinationWarehouseCode : article.op.warehouseCode,
 							code: article.code,
@@ -404,16 +408,20 @@ class WarehousesEntryInsert extends Reflux.Component {
 					})
 				}
 			})
- 		}
+		 }
 
-		this.refs.messageModal.show('sending');
-		WarehouseEntriesActions.insertOne(data, (err, res)=>{
-			if(err){
-				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
-			}else{
-				this.refs.messageModal.show('success_save');
-			}
-		});
+		if(flag) {
+			this.refs.messageModal.show('warning','Se está superando la cantidad solicitada')
+		} else {
+			this.refs.messageModal.show('sending');
+			WarehouseEntriesActions.insertOne(data, (err, res)=>{
+					if(err){
+						this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+					}else{
+						this.refs.messageModal.show('success_save');
+					}
+				});
+		}
 	}
 
 	render() {

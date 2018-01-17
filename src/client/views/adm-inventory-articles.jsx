@@ -67,6 +67,27 @@ class Slider extends React.Component {
 	}
 }
 
+class StockViewer extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	render() {
+		let sata = this.props.stockData;
+		return( 
+		<div> {
+			sata.data.map(x=>{
+				return(
+					<div>
+						<PropertySingle name={"Almacén : "+x.almacen}/>
+						<PropertySingle name="Stock" value={x.stock}/>
+					</div>	
+				)
+			})
+		}
+		</div>
+	)
+	}
+}
 /****************************************************************************************/
 
 class ArticleWelcome extends React.Component {
@@ -163,7 +184,7 @@ class ArticleViewer extends Reflux.Component {
 		this.state = {}
 
 		this.store = ArticlesStore;
-		this.storeKeys = ['selectedItem', 'viewerStatus'];
+		this.storeKeys = ['selectedItem', 'viewerStatus', 'dataStockItem'];
 
 		this.dropdowOptions = [
 			{
@@ -182,6 +203,7 @@ class ArticleViewer extends Reflux.Component {
 
 		if(this.props.articleCode){
 			ArticlesActions.findOne(this.props.articleCode);
+			ArticlesActions.getStockData(this.props.articleCode);
 		}
 	}
 
@@ -222,7 +244,6 @@ class ArticleViewer extends Reflux.Component {
 			<SectionCard title="Vista de artículo" iconName="library_books" menuID="articleViewer" menuItems={this.dropdowOptions}>
 				<div style={{padding: '0rem 0.5rem 1rem 0.5rem'}}>
 					<span>{this.state.selectedItem.name}</span>
-
 					<div className="card" style={{paddingTop: '0.5rem'}}>
 						{
 							this.state.selectedItem.images[0] ?
@@ -235,7 +256,9 @@ class ArticleViewer extends Reflux.Component {
 							<h6 style={{fontWeight: 'bold'}}>{this.state.selectedItem.description}</h6>
 						</div>
 					</div>
-
+					<div>
+					<StockViewer stockData={this.state.dataStockItem}/>
+					</div>
 					<PropertySingle name="Código" value={this.state.selectedItem.clientCode}/>
 					<PropertySingle name="Nombre" value={this.state.selectedItem.name}/>
 					<PropertySingle name="Marca" value={this.state.selectedItem.brand}/>

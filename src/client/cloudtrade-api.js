@@ -75,6 +75,13 @@ var articles = {
 			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/listar-categorias')
 			.set('authorization', authorization)
 			.end((err, res)=>{ stdResCallback(err, res, callback) });
+	},
+	getStockData: function(data, authorization, callback) {
+		request
+			.get(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/articulos/ver-stock/' + data.article)
+			.set('authorization', authorization)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });			
+
 	}
 }
 

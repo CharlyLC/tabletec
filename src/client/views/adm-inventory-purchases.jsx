@@ -638,7 +638,7 @@ class PurchaseUpdateStatus extends Reflux.Component {
 					</div>
 					<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
 						<Select ref="status" className="col s12" nameField="name" valueField="value"
-							options={[{name:'Creado', value:'created'}, {name:'Aprobado', value:'approved'}, {name:'Entregado', value:'delivered'}, {name:'Cancelado', value:'cancelled'}, {name:'Retrasado', value:'delayed'}]}
+							options={[{name:'Creado', value:'created'}, {name:'Aprobado', value:'approved'}, {name:'Recibido', value:'delivered'}, {name:'Cancelado', value:'cancelled'}, {name:'Retrasado', value:'delayed'}]}
 							label="Nuevo estado" placeholder="Seleccione un estado" onChange={this.onSelectStatus.bind(this)}/>
 					</div>
 					<div className="row no-margin" style={{padding: '0rem 0.8rem 1rem 0.8rem'}}>
@@ -790,7 +790,7 @@ class AdmInventoryPurchases extends Reflux.Component {
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
-							<PurchasesList url={this.url} history={this.props.history}/>
+							<PurchasesList url={this.url} history={this.props.history}/> /** de donde viene a que se refiere**/
 						</SectionView>
 					</div> : null
 				}

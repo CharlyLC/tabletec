@@ -145,7 +145,7 @@ class PurchasesStore extends Reflux.Store {
 			case 'created': return 'Creado';
 			case 'approved': return 'Aprobado';
 			case 'cancelled': return 'Cancelado';
-			case 'delivered': return 'Entregado';
+			case 'delivered': return 'Recibido';
 			case 'delayed': return 'Retrasado';
 			case 'joined': return 'Depositado en almacén';
 			default: return 'Desconocido'

@@ -16,7 +16,7 @@ import config from '../config';
 var ArticlesActions = Reflux.createActions([
 	'findAll', 'findOne', 'insertOne', 'updateOne',
 	'findAllBrands', 'findAllCategories',
-	'getStockReport'
+	'getStockReport', 'getStockData'
 ]);
 
 class ArticlesStore extends Reflux.Store {
@@ -27,6 +27,7 @@ class ArticlesStore extends Reflux.Store {
 			company: config.company,
 
 			selectedItem: null,
+			dataStockItem: null,
             list: { columns: [], rows: [] },
 
 			listStatus: 'loading', // loading, ready, error
@@ -112,6 +113,29 @@ class ArticlesStore extends Reflux.Store {
 			api.inventory.reports.articles.getStockReport({company: this.state.company, article: articleCode}, auth, callback);
 		}else{
 			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
+
+	getStockData(articleCode, callback) {
+		let auth = localStorage.getItem('authorization');
+		let resx = {
+				data : [{almacen:"almacen Sucre",stock:"12"},
+						{almacen:"almacen Lapaz",stock:"150"},
+						{almacen:"almacen oruro",stock:"1200"}
+				]
+		}
+		if(auth){
+			//console.log("ENTRANDO EL CODIGO DEL ARTICULO",articleCode);
+			this.setState({dataStockItem: resx});
+			//console.log("RESX",resx);
+			//api.inventory.articles.getStockData({company: this.state.company, article: articleCode}, auth, callback);
+			/*if(err){
+					this.setState({viewerStatus: 'error'});
+				}else{
+					this.setState({dataStockItem: res.article, viewerStatus: 'ready'});
+				}*/
+		}else{
+			//callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}
 	}
 }
