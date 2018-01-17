@@ -19,6 +19,8 @@ import Alert from '../components/alert.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
 import Form from '../components/form.jsx';
 import Input from '../components/input.jsx';
+import { Button } from '../components/button.jsx';
+import Select from '../components/select.jsx';
 import ItemProperty from '../components/item-property.jsx';
 import MessageModal from '../components/message-modal.jsx';
 import Progress from'../components/progress.jsx';
@@ -138,7 +140,7 @@ class WarehousesViewer extends Reflux.Component {
 			{
 				text: 'Reporte de existencias',
 				select: this.onDropdowOptionStockReport.bind(this)
-			}
+			},
 		];
 	}
 
@@ -163,21 +165,7 @@ class WarehousesViewer extends Reflux.Component {
 	}
 
 	onDropdowOptionStockReport() {
-		this.refs.messageModal.show('sending');
-		WarehousesActions.getStockReport(this.props.warehouseCode, (err, res)=>{
-			if(err){
-				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
-			}else{
-				this.refs.messageModal.close();
-
-				if(this.refs.pdfViewer.supports()){
-					this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
-					this.refs.pdfViewer.open();
-				}	else {
-					window.open('data:application/pdf;base64,'+res.pdf);
-				}
-			}
-		});
+		this.props.history.push(this.props.url + '/reporte-existencias/' + this.props.warehouseCode);
 	}
 
 	render(){
@@ -441,6 +429,122 @@ class WarehousesUpdate extends WarehousesInsert {
 	}
 }
 
+class WarehousesReports extends Reflux.Component {
+	constructor(props) {
+		super(props);
+		this.title = "Reporte de existencias";
+
+		this.state = {
+			options: [
+				{
+					texto : 'Filtrar por Código',
+					valor : 'code',
+				},
+				{
+					texto : 'Filtrar por Nombre',
+					valor : 'name',
+				},
+				{
+					texto : 'Filtrar por Marca',
+					valor : 'brand',
+				},
+				{
+					texto : 'Filtrar por Categoria',
+					valor : 'category',
+				},
+				{
+					texto : 'Mostrar Todos',
+					valor : 'all',
+				}
+			]
+		}
+
+		this.store = WarehousesStore;
+		this.storeKeys = ['selectedItem','viewerStatus'];
+	}
+	componentDidMount() {
+		Materialize.updateTextFields();
+	}
+
+	componentWillMount() {
+		super.componentWillMount();
+
+		if(this.props.warehouseCode){
+			WarehousesActions.findOne(this.props.warehouseCode);
+		}
+	}
+
+	onFormSubmit(Form) {
+		let data = {
+			warehouseCode : this.props.warehouseCode,
+			filter : {
+				option : this.refs.option.value(),
+				text : this.refs.filter.value()
+			}
+		}
+		console.log(data);
+		this.refs.messageModal.show('sending');
+		WarehousesActions.getStockReport( data, (err, res)=>{
+			if(err){
+				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+			}else{
+				this.refs.messageModal.close();
+
+				if(this.refs.pdfViewer.supports()){
+					this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+					this.refs.pdfViewer.open();
+				}	else {
+					window.open('data:application/pdf;base64,'+res.pdf);
+				}
+			}
+		});
+	}
+
+	render() {
+		switch(this.state.viewerStatus){
+		case 'ready':
+		return(
+
+			<SectionCard title={this.title} iconName="library_books">
+				<div className="row no-margin">
+					<h6 style={{padding: '0rem 0.8rem'}}>Seleccione la opcion almacén. {this.state.selectedItem.name}</h6>
+				</div>
+				<Form ref="datedReportForm" onSubmit={this.onFormSubmit.bind(this)}>
+					<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+						<Select ref="option" className="col s12" options={this.state.options} nameField="texto" valueField="valor"
+							label="opciones" placeholder="Seleccione una opción"/>
+					</div>
+					<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+						<Input ref="filter" name="filter" type="text" className="col s12"
+							label="texto" placeholder="escriba texto"/>
+					</div>
+					<div className="row no-margin" style={{padding: '0rem 0.8rem 1rem 0.8rem'}}>
+						<h6 style={{fontWeight: 'bold'}}>Crear</h6>
+						<Button ref="submitBtn" className="col s12 red darken-2" text="Crear reporte" iconName="send" type="submit"/>
+					</div>
+				</Form>
+				<MessageModal ref="messageModal"/>
+				<PdfViewerModal ref="pdfViewer"/>
+			</SectionCard>
+		)
+		case 'loading':
+			return (
+			<SectionCard title="Cargando datos de almacen..." iconName="store">
+				<div className="row">
+					<Progress type="indeterminate"/>
+				</div>
+			</SectionCard>);
+
+		case 'error':
+			return (
+			<SectionCard title="Datos de almacen" iconName="store">
+				<Alert type="error" text="ERROR: No se pudo cargar los datos del almacen"/>
+			</SectionCard>);
+		
+		}
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryWarehouses extends Reflux.Component {
@@ -491,6 +595,9 @@ class AdmInventoryWarehouses extends Reflux.Component {
 								<WarehousesInsert path="insertar"/>
 								<WarehousesUpdate path="editar" url={this.url} history={this.props.history}
 									warehouseCode={this.props.match.params.warehouse}/>
+								<WarehousesReports path="reporte-existencias" url={this.url} history={this.props.history}
+									warehouseCode={this.props.match.params.warehouse}/>	
+									
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
