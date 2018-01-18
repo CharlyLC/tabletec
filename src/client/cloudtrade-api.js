@@ -301,7 +301,7 @@ var reports = {
 	warehouses: {
 		getStockReport: function(data, authorization, callback) {
 			request
-				.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/almacenes/stock/' + data.warehouse)
+				.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/almacenes/stock/' + data.warehouseCode)
 				.set('authorization', authorization)
 				.send(data)
 				.end((err, res)=>{ stdResCallback(err, res, callback) });
