@@ -18,7 +18,7 @@ import {Footer} from '../components/footer.jsx';
 import Alert from '../components/alert.jsx';
 import { Button } from '../components/button.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
-import { DataImporter, TransactionMutator } from '../components/data-importer.jsx';
+import { DataImporter, TransactionMutator, TransactionMutator2 } from '../components/data-importer.jsx';
 import Form from '../components/form.jsx';
 import Input from '../components/input.jsx';
 import ItemProperty from '../components/item-property.jsx';
@@ -37,109 +37,6 @@ import { WarehouseEntriesActions, WarehouseEntriesStore } from '../flux/warehous
 
 import Tools from '../tools';
 import {PretyDate} from '../tools/prety-date';
-
-/****************************************************************************************/
-
-class ArticleMutator extends React.Component {
-	constructor(props) {
-		super(props);
-	}
-
-	componentDidMount() {
-		this.props.article.op = {
-			quantity: this.props.article.quantity || 0,
-			warehouseCode: '',
-			remark: '' };
-		this.refs.quantity.value(this.props.article.op.quantity.toString());
-		this.onChange();
-	}
-
-	componentDidUpdate(prevProps, prevState) {
-		if(prevProps.article !== this.props.article){
-			this.props.article.op = {
-				quantity: this.props.article.quantity || 0,
-				warehouseCode: '',
-				remark: '' };
-			this.refs.quantity.value(this.props.article.op.quantity.toString());
-			this.refs.remark.value = '';
-		}
-		this.onChange();
-	}
-
-	onChange() {
-		let quantity = parseInt(this.refs.quantity.value(), 10),
-			remark = this.refs.remark.value,
-			warehouseCode = this.refs.warehouse.value();
-
-		if(Number.isInteger(quantity)){
-			this.refs.quantity.value(quantity.toString()); // This line doesn't trigger a new onChange event
-		}else{
-			quantity = 0;
-			this.refs.quantity.value('0'); // This line doesn't trigger a new onChange event
-		}
-
-		this.props.article.op = { quantity, remark, warehouseCode }
-	}
-
-	render() {
-		return(
-		<div>
-			<h6 style={{fontWeight: 'bold', padding: '0.5rem 0.5rem'}}>
-				{'Artículo: ' + this.props.article.name}
-			</h6>
-			<div className="row no-margin" >
-				<div className="col s8">
-					<span>{'Cantidad solicitada en ' + this.props.transactType + ': ' + this.props.article.quantity}</span>
-				</div>
-				<Input ref="quantity" name={'quantity' + this.props.id} className="col s4" type="text" required={true}
-					placeholder="Cantidad" label="Cantidad" onChange={this.onChange.bind(this)} />
-			</div>
-
-			<div className="row no-margin" >
-				<Select ref="warehouse" className="col s12" options={this.props.warehouses} nameField="name" valueField="code"
-					label="Almacén" placeholder="Seleccione un almacén" onChange={this.onChange.bind(this)}/>
-			</div>
-			<div className="row no-margin">
-				<div className="input-field col s12">
-					<textarea ref="remark" id={'remark' + this.props.id} className="materialize-textarea" data-length="10240"
-						placeholder="Observación" onChange={this.onChange.bind(this)}/>
-					<label htmlFor={'remark' + this.props.id}>Observación</label>
-				</div>
-			</div>
-		</div>)
-	}
-}
-
-class TransactionMutatorLocal extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			warehouses: []
-		}
-	}
-
-	componentWillMount() {
-		WarehouseEntriesActions.findAllWarehouses((err, res)=>{
-			if(res && res.warehouses){
-				this.setState({warehouses: res.warehouses.rows});
-			}
-		});
-	}
-
-	render() {
-		return(
-		<CollapsibleCard title={this.props.transaction.typeName + ': ' + this.props.transaction.business} iconName="shop">
-			{
-				this.props.transaction.articles ?
-				this.props.transaction.articles.map((article, i)=>{
-					return (<ArticleMutator key={i} id={i} article={article} warehouses={this.state.warehouses}
-								transactType={this.props.transaction.typeName}/>)
-				}) : null
-			}
-		</CollapsibleCard>)
-	}
-}
 
 /****************************************************************************************/
 
@@ -258,7 +155,7 @@ class WarehouseEntryViewer extends Reflux.Component {
 
 	render(){
 		var item = this.state.selectedItem;
-		console.log("ITEM---", item);
+
 		switch(this.state.viewerStatus){
 		case 'ready': return item ? (
 			<SectionCard title="Entrada a almacén" iconName="store">
@@ -379,6 +276,23 @@ class WarehousesEntryInsert extends Reflux.Component {
 		});
 	}
 
+	onRequireOthers(callback) {
+		WarehouseEntriesActions.findAllArticles((err, res)=>{
+			if(res){ callback(null, {data: res.articles}); }else{ callback(err); }
+		});
+	}
+
+	onMutateOthers(checkeds) {
+		return [
+			{
+				typeName: 'Entrada',
+				business: 'Personalizada',
+				articles: checkeds
+			}
+		]
+	}
+
+
 	onDataImporterChange() {
 		Materialize.updateTextFields();
 		this.refs.insertForm.revalidate();
@@ -387,12 +301,12 @@ class WarehousesEntryInsert extends Reflux.Component {
 	onChangeTransactType(value) {
 		this.setState({transactType: value});
 
-		if(value === 'custom'){ this.refs.submitBtn.disable(); }
-		else{ this.refs.submitBtn.enable(); }
+		/*if(value === 'custom'){ this.refs.submitBtn.disable(); }
+		else{ this.refs.submitBtn.enable(); }*/
 	}
 
 	onFormSubmit(form) {
-		var flag = false;
+		var val0 = false, flag = false;
 		let selectedTransactions = this.refs.transactions.getSelectedTransactions();
 
 		let data = {
@@ -403,12 +317,14 @@ class WarehousesEntryInsert extends Reflux.Component {
 				return {
 					code: tran.code,
 					articles: tran.articles.map(article=>{
-						if( article.op.quantity > article.quantity) { 
+						if(article.op.quantity == 0) {
+							val0 = true;
+						} else if(article.quantity && (article.op.quantity > article.quantity)) { 
 							flag = true;
 						}
 						return {
-							warehouseCode: (this.state.transactType === 'transfers') ? tran.destinationWarehouseCode : article.op.warehouseCode,
 							code: article.code,
+							warehouseCode: (this.state.transactType === 'transfers') ? tran.destinationWarehouseCode : article.op.warehouseCode,
 							quantity: article.op.quantity,
 							remark: article.op.remark
 						}
@@ -417,17 +333,19 @@ class WarehousesEntryInsert extends Reflux.Component {
 			})
 		 }
 
-		if(flag) {
-			this.refs.messageModal.show('warning','Se está superando la cantidad solicitada')
+		if(val0) {
+			this.refs.messageModal.show('save_error', 'No se aceptan cantidades cero');
+		} else if(flag) {
+			this.refs.messageModal.show('save_error', 'Se está superando la cantidad solicitada');
 		} else {
 			this.refs.messageModal.show('sending');
 			WarehouseEntriesActions.insertOne(data, (err, res)=>{
-					if(err){
-						this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
-					}else{
-						this.refs.messageModal.show('success_save');
-					}
-				});
+				if(err){
+					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+				}else{
+					this.refs.messageModal.show('success_save');
+				}
+			});
 		}
 	}
 
@@ -441,6 +359,11 @@ class WarehousesEntryInsert extends Reflux.Component {
 			{ name: 'business', text: 'Asunto', visible: true },
 			{ name: 'originWarehouseName', text: 'Almacen origen', visible: true },
 			{ name: 'destinationWarehouseName', text: 'Almacén destino', visible: true }
+		];
+
+		let otherColumns = [
+			{ name: 'clientCode', text: 'Código', visible: true },
+			{ name: 'name', text: 'Nombre del Artículo', visible: true }
 		];
 
 		return(
@@ -466,7 +389,10 @@ class WarehousesEntryInsert extends Reflux.Component {
 				<div>
 					<Switch match={this.state.transactType}>
 						<Case path="purchases">
-							<DataImporter ref="transactions" columns={purchasesColumns} dataComponent={TransactionMutatorLocal} group={true} filterBy="business"
+							<DataImporter ref="transactions" columns={purchasesColumns}
+								dataComponent={TransactionMutator2}
+								dataComponentFinderFunc={WarehouseEntriesActions.findAllWarehouses}
+								group={true} filterBy="business"
 								loadData={this.onRequirePurchases.bind(this)} loadDataSubitem={this.onRequirePurchaseArticles.bind(this)}
 								onChange={this.onDataImporterChange.bind(this)}/>
 						</Case>
@@ -476,7 +402,12 @@ class WarehousesEntryInsert extends Reflux.Component {
 								onChange={this.onDataImporterChange.bind(this)}/>
 						</Case>
 						<Case path="custom">
-							<div>(Esta opción no está habilitada)</div>
+							<DataImporter ref="transactions" columns={otherColumns}
+								dataComponent={TransactionMutator2}
+								dataComponentFinderFunc={WarehouseEntriesActions.findAllWarehouses}
+								group={true} filterBy="name"
+								loadData={this.onRequireOthers.bind(this)} mutate={this.onMutateOthers.bind(this)}
+								onChange={this.onDataImporterChange.bind(this)}/>
 						</Case>
 					</Switch>
 				</div>

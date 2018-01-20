@@ -15,6 +15,7 @@ import Input from './input.jsx';
 import Progress from './progress.jsx';
 import { Switch, Case } from './switch.jsx';
 import Table from './table.jsx';
+import Select from './select.jsx';
 
 /*****************************************************************************************/
 
@@ -74,6 +75,79 @@ class ArticleMutator extends React.Component {
 	}
 }
 
+class ArticleMutator2 extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+
+	componentDidMount() {
+		this.props.article.op = {
+			quantity: this.props.article.quantity || 0,
+			warehouseCode: '',
+			remark: '' };
+		this.refs.quantity.value(this.props.article.op.quantity.toString());
+		this.onChange();
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if(prevProps.article !== this.props.article){
+			this.props.article.op = {
+				quantity: this.props.article.quantity || 0,
+				warehouseCode: '',
+				remark: '' };
+			this.refs.quantity.value(this.props.article.op.quantity.toString());
+			this.refs.remark.value = '';
+		}
+		this.onChange();
+	}
+
+	onChange() {
+		let quantity = parseInt(this.refs.quantity.value(), 10),
+			remark = this.refs.remark.value,
+			warehouseCode = this.refs.warehouse.value();
+
+		if(Number.isInteger(quantity)){
+			this.refs.quantity.value(quantity.toString()); // This line doesn't trigger a new onChange event
+		}else{
+			quantity = 0;
+			this.refs.quantity.value('0'); // This line doesn't trigger a new onChange event
+		}
+
+		this.props.article.op = { quantity, remark, warehouseCode }
+	}
+
+	render() {
+		return(
+		<div>
+			<h6 style={{fontWeight: 'bold', padding: '0.5rem 0.5rem'}}>
+				{'Artículo: ' + this.props.article.name}
+			</h6>
+			<div className="row no-margin" >
+			{
+				this.props.article.quantity ?
+					<div className="col s8">
+						<span>{'Cantidad solicitada en ' + this.props.transactType + ': ' + this.props.article.quantity}</span>
+					</div> : null
+			}
+				<Input ref="quantity" name={'quantity' + this.props.id} className="col s4" type="text" required={true}
+					placeholder="Cantidad" label="Cantidad" onChange={this.onChange.bind(this)} />
+			</div>
+
+			<div className="row no-margin" >
+				<Select ref="warehouse" className="col s12" options={this.props.warehouses} nameField="name" valueField="code"
+					label="Almacén" placeholder="Seleccione un almacén" onChange={this.onChange.bind(this)}/>
+			</div>
+			<div className="row no-margin">
+				<div className="input-field col s12">
+					<textarea ref="remark" id={'remark' + this.props.id} className="materialize-textarea" data-length="10240"
+						placeholder="Observación" onChange={this.onChange.bind(this)}/>
+					<label htmlFor={'remark' + this.props.id}>Observación</label>
+				</div>
+			</div>
+		</div>)
+	}
+}
+
 class TransactionMutator extends React.Component {
 	constructor(props) {
 		super(props);
@@ -86,6 +160,37 @@ class TransactionMutator extends React.Component {
 				this.props.transaction.articles ?
 				this.props.transaction.articles.map((article, i)=>{
 					return (<ArticleMutator key={i} id={i} article={article} transactType={this.props.transaction.typeName}/>)
+				}) : null
+			}
+		</CollapsibleCard>)
+	}
+}
+
+class TransactionMutator2 extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			warehouses: []
+		}
+	}
+
+	componentWillMount() {
+		this.props.finderFunc((err, res)=>{
+			if(res && res.warehouses){
+				this.setState({warehouses: res.warehouses.rows});
+			}
+		});
+	}
+
+	render() {
+		return(
+		<CollapsibleCard title={this.props.transaction.typeName + ': ' + this.props.transaction.business} iconName="shop">
+			{
+				this.props.transaction.articles ?
+				this.props.transaction.articles.map((article, i)=>{
+					return (<ArticleMutator2 key={i} id={i} article={article} warehouses={this.state.warehouses}
+								transactType={this.props.transaction.typeName}/>)
 				}) : null
 			}
 		</CollapsibleCard>)
@@ -145,7 +250,9 @@ class DataImporter extends React.Component {
 	onEndSelect() {
 		this.toggleView();
 
-		let data = this.refs.articlesTable.getCheckedRows();
+		let data = this.props.mutate ?
+					this.props.mutate(this.refs.articlesTable.getCheckedRows()) :
+					this.refs.articlesTable.getCheckedRows();
 
 		this.setState({viewerStatus: 'loading'});
 		let promises = data.map(item=>{
@@ -185,7 +292,9 @@ class DataImporter extends React.Component {
 	}
 
 	render() {
-		let DataComponent = this.props.dataComponent;
+		let DataComponent = this.props.dataComponent,
+			dataComponentFinderFunc = this.props.dataComponentFinderFunc;
+
 		return(
 		<div>
 			<div ref="selected" className="row no-margin">
@@ -201,14 +310,14 @@ class DataImporter extends React.Component {
 							<Collapsible ref="collapsible">
 								{
 									this.state.selectedTransactions.map((transaction, i)=>{
-										return(<DataComponent key={i} transaction={transaction}/>)
+										return(<DataComponent key={i} transaction={transaction} finderFunc={dataComponentFinderFunc}/>)
 									})
 								}
 							</Collapsible> :
 							<div>
 								{
 									this.state.selectedTransactions.map((transaction, i)=>{
-										return(<DataComponent key={i} transaction={transaction}/>)
+										return(<DataComponent key={i} transaction={transaction} finderFunc={dataComponentFinderFunc}/>)
 									})
 								}
 							</div>
@@ -263,4 +372,4 @@ class DataImporter extends React.Component {
 	}
 }
 
-export { DataImporter, TransactionMutator }
+export { DataImporter, TransactionMutator, TransactionMutator2 }

@@ -18,7 +18,7 @@ import {Footer} from '../components/footer.jsx';
 import Alert from '../components/alert.jsx';
 import { Button } from '../components/button.jsx';
 import { Collapsible, CollapsibleCard } from '../components/collapsible.jsx';
-import { DataImporter, TransactionMutator } from '../components/data-importer.jsx';
+import { DataImporter, TransactionMutator, TransactionMutator2 } from '../components/data-importer.jsx';
 import Form from '../components/form.jsx';
 import Input from '../components/input.jsx';
 import ItemProperty from '../components/item-property.jsx';
@@ -261,6 +261,22 @@ class WarehouseOutletInsert extends Reflux.Component {
 		});
 	}
 
+	onRequireOthers(callback) {
+		WarehouseOutletsActions.findAllArticles((err, res)=>{
+			if(res){ callback(null, {data: res.articles}); }else{ callback(err); }
+		});
+	}
+
+	onMutateOthers(checkeds) {
+		return [
+			{
+				typeName: 'Salida',
+				business: 'Personalizada',
+				articles: checkeds
+			}
+		]
+	}
+
 	onDataImporterChange() {
 		Materialize.updateTextFields();
 		this.refs.insertForm.revalidate();
@@ -269,12 +285,12 @@ class WarehouseOutletInsert extends Reflux.Component {
 	onChangeTransactType(value) {
 		this.setState({transactType: value});
 
-		if(value === 'custom'){ this.refs.submitBtn.disable(); }
-		else{ this.refs.submitBtn.enable(); }
+		/*if(value === 'custom'){ this.refs.submitBtn.disable(); }
+		else{ this.refs.submitBtn.enable(); }*/
 	}
 
 	onFormSubmit(form) {
-		var flag = false;
+		var val0 = false, flag = false;
 		let selectedTransactions = this.refs.transactions.getSelectedTransactions();
 
 		let data = {
@@ -285,7 +301,9 @@ class WarehouseOutletInsert extends Reflux.Component {
 				return {
 					code: tran.code,
 					articles: tran.articles.map(article=>{
-						if( article.op.quantity > article.quantity) { 
+						if(article.op.quantity == 0) {
+							val0 = true;
+						} else if(article.quantity && (article.op.quantity > article.quantity)) { 
 							flag = true;
 						}
 						return {
@@ -299,17 +317,19 @@ class WarehouseOutletInsert extends Reflux.Component {
 			})
 		}
 		
-		if(flag) {
-			this.refs.messageModal.show('warning','Se está superando la cantidad solicitada')
+		if(val0) {
+			this.refs.messageModal.show('save_error', 'No se aceptan cantidades cero');
+		} else if(flag) {
+			this.refs.messageModal.show('save_error', 'Se está superando la cantidad solicitada')
 		} else {
 			this.refs.messageModal.show('sending');
-			WarehouseOutletsActions.insertOne(data, (err, res)=>{
-			if(err){
-				this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
-			}else{
-				this.refs.messageModal.show('success_save');
-			}
-		});
+				WarehouseOutletsActions.insertOne(data, (err, res)=>{
+				if(err){
+					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+				}else{
+					this.refs.messageModal.show('success_save');
+				}
+			});
 		}
 	}
 
@@ -318,6 +338,10 @@ class WarehouseOutletInsert extends Reflux.Component {
 			{ name: 'business', text: 'Asunto', visible: true },
 			{ name: 'originWarehouseName', text: 'Almacen origen', visible: true },
 			{ name: 'destinationWarehouseName', text: 'Almacén destino', visible: true }
+		];
+		let otherColumns = [
+			{ name: 'clientCode', text: 'Código', visible: true },
+			{ name: 'name', text: 'Nombre del Artículo', visible: true }
 		];
 
 		return(
@@ -342,12 +366,18 @@ class WarehouseOutletInsert extends Reflux.Component {
 				</div>
 				<Switch match={this.state.transactType}>
 					<Case path="transfers">
-						<DataImporter ref="transactions" columns={transfersColumns} dataComponent={TransactionMutator} group={true} filterBy="business"
+						<DataImporter ref="transactions" columns={transfersColumns}
+							dataComponent={TransactionMutator} group={true} filterBy="business"
 							loadData={this.onRequireTransfers.bind(this)} loadDataSubitem={this.onRequireTransferArticles.bind(this)}
 							onChange={this.onDataImporterChange.bind(this)}/>
 					</Case>
 					<Case path="custom">
-						<div>(Esta opción no está habilitada)</div>
+						<DataImporter ref="transactions" columns={otherColumns}
+							dataComponent={TransactionMutator2}
+							dataComponentFinderFunc={WarehouseOutletsActions.findAllWarehouses}
+							group={true} filterBy="name"
+							loadData={this.onRequireOthers.bind(this)} mutate={this.onMutateOthers.bind(this)}
+							onChange={this.onDataImporterChange.bind(this)}/>
 					</Case>
 				</Switch>
 				<div>

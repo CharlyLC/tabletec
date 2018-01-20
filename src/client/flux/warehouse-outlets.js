@@ -15,7 +15,7 @@ import config from '../config';
 
 var WarehouseOutletsActions = Reflux.createActions([
 	'findAll', 'findOne', 'insertOne',
-	'findAllWarehouses', 'findAllApprovedTransfers', 'findAllTransferArticles','getDatedReport'
+	'findAllWarehouses', 'findAllApprovedTransfers', 'findAllTransferArticles', 'findAllArticles', 'getDatedReport'
 ]);
 
 class WarehouseOutletsStore extends Reflux.Store {
@@ -106,6 +106,15 @@ class WarehouseOutletsStore extends Reflux.Store {
 			api.inventory.transfers.findOneArticles({company: this.state.company, transfer: transferCode}, auth, callback);
 		}else{
 			this.setState({viewerStatus: 'error'});
+		}
+	}
+
+	findAllArticles(callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			api.inventory.articles.findAll({company: this.state.company}, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
 		}
 	}
 
