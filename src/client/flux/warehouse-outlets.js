@@ -15,7 +15,7 @@ import config from '../config';
 
 var WarehouseOutletsActions = Reflux.createActions([
 	'findAll', 'findOne', 'insertOne',
-	'findAllWarehouses', 'findAllApprovedTransfers', 'findAllTransferArticles'
+	'findAllWarehouses', 'findAllApprovedTransfers', 'findAllTransferArticles','getDatedReport'
 ]);
 
 class WarehouseOutletsStore extends Reflux.Store {
@@ -109,7 +109,15 @@ class WarehouseOutletsStore extends Reflux.Store {
 		}
 	}
 
-
+	getDatedReport(data, callback) {
+		let auth = localStorage.getItem('authorization');
+		if(auth){
+			data.company = this.state.company;
+			//api.inventory.reports.outlets.getDatedReport(data, auth, callback);
+		}else{
+			callback({status: 500, response:{message: 'Acceso no autorizado'}});
+		}
+	}
 
 	translateTypeName(value) {
 		switch(value) {

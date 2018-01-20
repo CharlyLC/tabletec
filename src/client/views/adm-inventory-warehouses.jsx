@@ -507,7 +507,8 @@ class WarehousesReports extends Reflux.Component {
 
 			<SectionCard title={this.title} iconName="library_books">
 				<div className="row no-margin">
-					<h6 style={{padding: '0rem 0.8rem'}}>Seleccione la opcion almacén. {this.state.selectedItem.name}</h6>
+					<h6 style={{fontWeight: 'bold', padding: '1rem'}}>{this.state.selectedItem.name}</h6>
+					<h6 style={{padding: '0rem 0.8rem'}}>Seleccione una opción para obtener el reporte de existencias </h6>
 				</div>
 				<Form ref="datedReportForm" onSubmit={this.onFormSubmit.bind(this)}>
 					<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>

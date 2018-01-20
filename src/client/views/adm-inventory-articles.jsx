@@ -73,19 +73,35 @@ class StockViewer extends React.Component {
 	}
 	render() {
 		let sata = this.props.stockData;
-		return( 
-		<div> {
-			sata.data.map(x=>{
-				return(
-					<div>
-						<PropertySingle name={"Almacén : "+x.almacen}/>
-						<PropertySingle name="Stock" value={x.stock}/>
-					</div>	
-				)
-			})
+		let array =[]; let n=0;
+		for (var i in sata.existences){
+			array[n] = {
+				name:sata.existences[i].name,
+				stock:sata.existences[i].stock
+			}
+			n++;
 		}
-		</div>
-	)
+		if(array.length === 0){
+			return(
+				<div>
+					<PropertySingle name="El artículo seleccionado no tiene existencias en almacenes"/>
+				</div>
+			)
+		} 
+		else {
+			return(
+				<div> {
+					array.map(data=>{
+						return(
+							<div>
+								<PropertySingle name={data.name}/>
+								<PropertySingle name="Stock" value={data.stock}/>
+							</div>
+						)
+					})
+				} </div>
+			)
+		}
 	}
 }
 /****************************************************************************************/
@@ -257,7 +273,7 @@ class ArticleViewer extends Reflux.Component {
 						</div>
 					</div>
 					<div>
-					<StockViewer stockData={this.state.dataStockItem}/>
+						<StockViewer stockData={this.state.selectedItem}/>
 					</div>
 					<PropertySingle name="Código" value={this.state.selectedItem.clientCode}/>
 					<PropertySingle name="Nombre" value={this.state.selectedItem.name}/>

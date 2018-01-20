@@ -790,7 +790,7 @@ class AdmInventoryPurchases extends Reflux.Component {
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
-							<PurchasesList url={this.url} history={this.props.history}/> /** de donde viene a que se refiere**/
+							<PurchasesList url={this.url} history={this.props.history}/>
 						</SectionView>
 					</div> : null
 				}

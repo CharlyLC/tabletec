@@ -336,6 +336,24 @@ var reports = {
 				.set('authorization', authorization)
 				.end((err, res)=>{ stdResCallback(err, res, callback) });
 		},
+	},
+	entries:{
+		getDatedReport: function(data, authorization, callback) {
+			request
+			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/entries/por-fecha')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+		}
+	},
+	outlets:{
+		getDatedReport: function(data, authorization, callback) {
+			request
+			.post(domainURL + '/api/empresa/' + data.company + '/adm/inventarios/reportes/outlets/por-fecha')
+			.set('authorization', authorization)
+			.send(data)
+			.end((err, res)=>{ stdResCallback(err, res, callback) });
+		}
 	}
 }
 

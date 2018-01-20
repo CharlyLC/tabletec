@@ -29,12 +29,14 @@ import SectionView from '../components/section-view.jsx';
 import Select from '../components/select.jsx';
 import { Switch, Case } from '../components/switch.jsx';
 import Table from '../components/table.jsx';
+import PdfViewerModal from '../components/pdf-viewer-modal.jsx';
 
 import { AccountActions, AccountStore } from '../flux/account';
 import { InventoryActions, InventoryStore } from '../flux/inventory';
 import { WarehouseEntriesActions, WarehouseEntriesStore } from '../flux/warehouse-entries';
 
 import Tools from '../tools';
+import {PretyDate} from '../tools/prety-date';
 
 /****************************************************************************************/
 
@@ -194,6 +196,10 @@ class WarehouseEntriesList extends Reflux.Component {
 		WarehouseEntriesActions.findAll();
 	}
 
+	onDropdowOptionDatedReport() {
+		this.props.history.push(this.props.url + '/reporte-fechas/' + Tools.makeid(32));
+	}
+
 	render() {
 		return(
 		<SectionCard title="Lista de entradas" iconName="view_list" menuID="warehouseEntriesList" menuItems={this.dropdowOptions}>
@@ -252,6 +258,7 @@ class WarehouseEntryViewer extends Reflux.Component {
 
 	render(){
 		var item = this.state.selectedItem;
+		console.log("ITEM---", item);
 		switch(this.state.viewerStatus){
 		case 'ready': return item ? (
 			<SectionCard title="Entrada a almacén" iconName="store">
@@ -485,6 +492,75 @@ class WarehousesEntryInsert extends Reflux.Component {
 	}
 }
 
+class WarehousesEntryDatedReport extends Reflux.Component {
+	constructor(props){
+		super(props);
+	}
+
+	componentDidMount() {
+		Materialize.updateTextFields();
+
+		let date1 = PretyDate.formated();
+		this.refs.startDate.value(date1);
+		this.refs.endDate.value(date1);
+	}
+
+	onFormSubmit(form) {
+		let data = {
+			startDate: this.refs.startDate.value(),
+			endDate: this.refs.endDate.value()
+		}
+		var d1 = PretyDate.parse(data.startDate);
+		var d2 = PretyDate.parse(data.endDate);
+
+		if(d1 > d2) {
+			this.refs.messageModal.show('save_error', 'No permitido: la fecha de inicio debe ser menor a la fecha fin.');
+		}else{
+			this.refs.messageModal.show('sending');
+			WarehouseEntriesActions.getDatedReport(data, (err, res)=>{
+				if(err){
+					this.refs.messageModal.show('save_error', 'Error: ' + err.status + ' <' + err.response.message + '>');
+				}else{
+					this.refs.messageModal.close();
+
+					if(this.refs.pdfViewer.supports()){
+						this.refs.pdfViewer.setDoc('data:application/pdf;base64,'+res.pdf);
+						this.refs.pdfViewer.open();
+					}	else {
+						window.open('data:application/pdf;base64,'+res.pdf);
+					}
+				}
+			});
+		}
+	}
+
+	render() {
+		return(
+			<SectionCard title="Crear reporte de entradas a almacén" iconName="swap_horiz">
+			<div style={{padding: '0rem 1rem'}}>
+				<span>Seleccione las fechas para el reporte de entradas a almacén.</span>
+			</div>
+			<Form ref="datedReportForm" onSubmit={this.onFormSubmit.bind(this)}>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+					<Input ref="startDate" name="startDate" type="date" className="col s12"
+						label="Fecha inicio" placeholder="Seleccione fecha inicio"/>
+				</div>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem'}}>
+					<Input ref="endDate" name="endDate" type="date" className="col s12"
+						label="Fecha fin" placeholder="Seleccione fecha fin"/>
+				</div>
+				<div className="row no-margin" style={{padding: '0rem 0.8rem 1rem 0.8rem'}}>
+					<h6 style={{fontWeight: 'bold'}}>Crear</h6>
+					<Button ref="submitBtn" className="col s12 red darken-2" text="Crear reporte" iconName="send" type="submit"/>
+				</div>
+			</Form>
+			<MessageModal ref="messageModal"/>
+			<PdfViewerModal ref="pdfViewer"/>
+		</SectionCard>
+		)
+	}
+}
+
 /****************************************************************************************/
 
 class AdmInventoryWarehouseEntries extends Reflux.Component {
@@ -533,6 +609,7 @@ class AdmInventoryWarehouseEntries extends Reflux.Component {
 								<WarehouseEntryViewer path="ver" url={this.url} history={this.props.history}
 									entryCode={this.props.match.params.entry}/>
 								<WarehousesEntryInsert path="insertar"/>
+								<WarehousesEntryDatedReport path="reporte-fechas"/>
 							</Switch>
 						</SectionView>
 						<SectionView className="col s12 m6 l7">
