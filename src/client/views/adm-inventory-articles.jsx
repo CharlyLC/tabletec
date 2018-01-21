@@ -272,9 +272,11 @@ class ArticleViewer extends Reflux.Component {
 							<h6 style={{fontWeight: 'bold'}}>{this.state.selectedItem.description}</h6>
 						</div>
 					</div>
+
 					<div>
-						<StockViewer stockData={this.state.selectedItem}/>
+						<h5><b>Detalles</b></h5>
 					</div>
+					
 					<PropertySingle name="Código" value={this.state.selectedItem.clientCode}/>
 					<PropertySingle name="Nombre" value={this.state.selectedItem.name}/>
 					<PropertySingle name="Marca" value={this.state.selectedItem.brand}/>
@@ -287,6 +289,13 @@ class ArticleViewer extends Reflux.Component {
 					}
 					<PropertySingle name="Fecha de creación" value={this.state.selectedItem.creationDate}/>
 					<PropertySingle name="Fecha de modificación" value={this.state.selectedItem.modifiedDate}/>
+				
+					<div>
+						<h5><b>Existencias</b></h5>
+						<div>
+							<StockViewer stockData={this.state.selectedItem}/>
+						</div>
+					</div>
 				</div>
 				<MessageModal ref="messageModal"/>
 				<PdfViewerModal ref="pdfViewer"/>
